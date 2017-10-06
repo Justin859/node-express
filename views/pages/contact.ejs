@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <% include ../partials/header.ejs %>
+</head>
+
+<body>
+<% include ../partials/nav.ejs %>
+
+<!-- Modal --> 
+<% if(successMsg) { %>
+    
+<div class="modal fade" id="myModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Thank you for your query!</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p><%= successMsg %></p>
+            <p>If it has been longer than 48hrs or if you would like to contact us directly send and email to <a href="mailto:info@yourdev.co.za?Subject=Online Query (yourdev.co.za)" style="text-decoration: none; color:#ffc107" target="_top"><b>info@rockworthy.co.za</b></a></p>            
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+        </div>
+    </div>
+</div>
+<% } %>
+
+<div class="cover-photo" style="background: url('/assets/images/audience-868074_1920.jpg') center center; background-size: cover;">
+    <div class="cover-text"><h3 class="display-4">Contact Rock Worthy</h3></div>
+</div>
+
+<div class="container">
+ <br />
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div style="height: 100%;">
+                    <div class="card-block">
+                        <h4 class="card-title">Rock Worthy wants to hear from you! Whether you're an artist, fan or event organizer.</h4>
+                        <p class="card-text">We have a blog section if you would like to promote an event, artist, band or venue.</p>
+                        <p class="card-text">And if you just have a query we're happy to hear it.</p>
+                        <br />
+                        <div class="container">
+                        <form action="" method="POST">
+                        <div class="form-group row">
+                            <div class="col-12 col-md-6" style="padding-bottom: 15px;">
+                                <input type="text" class="form-control-lg" name="name" style="width: 100%;" placeholder="Your name" aria-describedby="nameHelp" required>
+                                <small id="nameHelp" class="form-text text-danger invisible">Please enter your name.</small>
+                            </div>
+                            <div class="col-12 col-md-6" style="padding-bottom: 15px;">
+                                <input type="email" class="form-control-lg email-input" name="email" style="width: 100%;" placeholder="Your email address" aria-describedby="emailHelp" required>
+                                <small class="form-text text-muted invisible">We'll never share your email with anyone else.</small>
+                                <small id="emailHelp" class="form-text-help text-danger invisible">Please enter a valid email address.</small>
+                            </div>
+                        </div>
+                        <br />
+                        <div class="form-group row">
+                            <div class="col-12" style="padding-bottom: 15px;">
+                                <textarea type="text" class="form-control-lg" name="query" style="width: 100%;" placeholder="Your Query" rows="10" maxlength="1001" aria-describedby="queryHelp" required></textarea>
+                                <small class="form-text text-muted invisible">Your query can be a request, suggestion or a question.</small>
+                                <small id="queryHelp" class="form-text-help text-danger invisible">Please enter a query.</small>
+                            </div>
+                        </div>
+                        <br />
+                        <button type="submit" class="btn btn-warning float-right">Submit</button>
+                        
+                        </form>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+
+<div id="overlay">
+    <div id="text">
+        <div class="loader"></div>
+        <div class="loader-text">&nbsp;Sending Query...</div>
+    </div>
+</div>
+
+<% include ../partials/scripts.ejs %>
+<script src="/scripts/form.js"></script>
+</body>
+
+</html>
