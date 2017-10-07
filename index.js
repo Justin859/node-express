@@ -4,6 +4,8 @@ var bodyParser = require('body-parser');
 var expressValidator = require('express-validator');
 var exphbs = require('express-handlebars');
 var sendemail = require('sendemail');
+var graph = require('fbgraph');
+var moment = require('moment');
 var pg = require('pg');
 var express = require('express');
 var app = express();
@@ -11,6 +13,11 @@ var app = express();
 app.set('port', (process.env.PORT || 5000));
 
 app.use(express.static(__dirname + '/public'));
+
+// facebook graph
+ graph.get("oauth/access_token?client_id=" + process.env.FACEBOOK_API_ID + "&client_secret=" + process.env.FACEBOOK_APP_SECRET  + "&grant_type=client_credentials", function(error, response) {
+  graph.setAccessToken(response['access_token']);
+})
 
 // express handlebars
 app.engine('handlebars', exphbs({defaultLayout: 'main'}));
@@ -25,9 +32,79 @@ app.use(expressValidator()); // Add this after the bodyParser middlewares!
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 
-app.get('/', function(request, response) {
+var dateNow = moment().format("MM-DD-YYYY");
+var weekDay = moment().weekday();
 
-  response.render('pages/index');
+if (weekDay == 4 || weekDay == 1 || weekDay == 2 || weekDay == 3) {
+  var weekend_start = moment(moment(dateNow).add(4-weekDay, 'days')).format("MM-DD-YYYY");;
+  var weekend_stop = moment(moment(weekend_start).add(2, 'days')).format("MM-DD-YYYY");;
+  var mid_weekend = moment(moment(weekend_start).add(1, 'days')).format("MM-DD-YYYY");;
+} else if (weekDay == 5) {
+  var weekend_start = moment().format("MM-DD-YYYY");
+  var weekend_stop = moment(moment().add(2, 'days')).format("MM-DD-YYYY");
+  var mid_weekend = moment(moment().add(1, 'days')).format("MM-DD-YYYY"); 
+} else if (weekDay == 6) {
+  var weekend_start = false;
+  var weekend_stop = moment(moment().add(1, 'days')).format("MM-DD-YYYY");
+  var mid_weekend = dateNow
+} else {
+  var weekend_start = dateNow
+  var weekend_stop = false;
+  var mid_weekend = false;
+}
+
+app.get('/', function(request, response) {
+  
+    var batchArray = []
+    
+    pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+      client.query('SELECT * FROM event_hosts', function(err, result) {
+        done();
+        if (err)
+         { console.error(err); response.send("Error " + err); }
+        else
+         { 
+           
+           for (i=0; i < result.rows.length; i++) {
+             batchArray.push(
+               {
+                 method: "GET",
+                 relative_url: result.rows[i].host_id + "/?fields=events{cover,name,attending_count,ticket_uri,interested_count,start_time,end_time,place}"
+               }
+             )
+           }
+           graph.batch(
+            batchArray,
+             function(error, res) {
+            var data = [];
+            var events = [];
+            if (error) {
+              console.log(error);
+              res.render('pages/index', {events: "error", moment: moment, dateNow: dateNow, weekDay: weekDay, weekend_start: weekend_start, mid_weekend: mid_weekend, weekend_stop: weekend_stop});
+            } else {
+              for (var i=0; i< res.length; i++) {
+                data.push(JSON.parse(res[i]['body'])['events']['data']);
+              }
+              for(var i = 0; i < data.length; i++)
+              {
+                  events = events.concat(data[i]);
+              }
+              events = events.sort(function(a, b) {
+                if (a['attending_count'] > b['attending_count']) {
+                  return -1;
+                } else if ( a['attending_count'] < b['attending_count']) {
+                  return +1;
+                }
+                return 0
+              })
+              
+              response.render('pages/index', {events: events, moment: moment, dateNow: dateNow, weekDay: weekDay, weekend_start: weekend_start, mid_weekend: mid_weekend, weekend_stop: weekend_stop});
+            }
+        
+          });
+          }
+      });
+    });
   
 });
 
@@ -81,7 +158,7 @@ app.get('/cool', function(request, response) {
 
 app.get('/db', function (request, response) {
   pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-    client.query('SELECT * FROM test_table', function(err, result) {
+    client.query('SELECT * FROM event_hosts', function(err, result) {
       done();
       if (err)
        { console.error(err); response.send("Error " + err); }
