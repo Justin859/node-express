@@ -51,7 +51,7 @@
                         <div class="card hide" style="height: auto;">
                             <div style="height: 100%;">
                               <% if ((event).cover) { %>
-                                <img class="card-img-top img-fluid" src="<%-(event).cover.source %>" alt="">                                
+                                <img class="card-img-top img-fluid" src="<%- imgFix((event).cover.source) %>" alt="">                                
                               <% };%>  
                                 <div class="card-block">
                                   <h4 class="card-title"><%=(event).name %></h4>
@@ -117,8 +117,9 @@
                     <div class="card hide" style="height: auto;">
                         <div style="height: 100%;">
                             <% if ((event).cover) { %>
-                              <img class="card-img-top img-fluid" src="<%-(event).cover.source %>" alt="">                                
-                            <% };%>                              <div class="card-block">
+                              <img class="card-img-top img-fluid" src="<%- imgFix((event).cover.source) %>" alt="">                                
+                            <% };%>                              
+                            <div class="card-block">
                               <h4 class="card-title"><%=(event).name %></h4>
                               <p class="card-text"><b>Attending</b>&nbsp;<span class="badge badge-info"><%= (event).attending_count %></span>
                                 <b>interested</b>&nbsp;<span class="badge badge-warning"><%= (event).interested_count %></span></p>
@@ -155,10 +156,6 @@
 <a href="#top-page" class="btn-top-hide" id="myBtn"><span class="material-icons" style="color: #ffffff;">arrow_upward</span></a>
 <div class="hidden-sm-down events-tag events-tag-closed" id="weekend-events-tag"><h5>Weekend Events</h5></div>
 <div class="hidden-sm-down events-tag events-tag-closed" id="upcoming-events-tag"><h5>Upcoming Events</h5></div>
-    
-
- 
-</ul>
 
 <% include ../partials/scripts.ejs %>
 <% include ../partials/eventscripts.ejs %>

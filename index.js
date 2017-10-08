@@ -97,8 +97,14 @@ app.get('/', function(request, response) {
                 }
                 return 0
               })
-              
-              response.render('pages/index', {events: events, moment: moment, dateNow: dateNow, weekDay: weekDay, weekend_start: weekend_start, mid_weekend: mid_weekend, weekend_stop: weekend_stop});
+              // could be a temporary fix for source img problem with facebook api
+              var imgFix = function (str) {
+                str = str.split(".");
+                str[1] = "xx";
+                str = str.join(".");
+             return str;
+            };
+              response.render('pages/index', {events: events, moment: moment, dateNow: dateNow, weekDay: weekDay, weekend_start: weekend_start, mid_weekend: mid_weekend, weekend_stop: weekend_stop, imgFix: imgFix});
             }
         
           });
