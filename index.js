@@ -44,38 +44,38 @@ marked.setOptions({
   smartypants: false
 });
 
-var dateNow = moment().format("MM-DD-YYYY");
-var weekDay = moment().weekday();
+    // could be a temporary fix for source img problem with facebook api
+    var imgFix = function (str) {
+      str = str.split(".");
+      str[1] = "xx";
+      str = str.join(".");
+    return str;
+  };
 
-if (weekDay == 4 || weekDay == 1 || weekDay == 2 || weekDay == 3) {
-  var weekend_start = moment(moment(dateNow).add(5-weekDay, 'days')).format("MM-DD-YYYY");;
-  var weekend_stop = moment(moment(weekend_start).add(2, 'days')).format("MM-DD-YYYY");;
-  var mid_weekend = moment(moment(weekend_start).add(1, 'days')).format("MM-DD-YYYY");;
-} else if (weekDay == 5) {
-  var weekend_start = moment().format("MM-DD-YYYY");
-  var weekend_stop = moment(moment().add(2, 'days')).format("MM-DD-YYYY");
-  var mid_weekend = moment(moment().add(1, 'days')).format("MM-DD-YYYY"); 
-} else if (weekDay == 6) {
-  var weekend_start = false;
-  var weekend_stop = moment(moment().add(1, 'days')).format("MM-DD-YYYY");
-  var mid_weekend = dateNow
-} else {
-  var weekend_start = dateNow
-  var weekend_stop = false;
-  var mid_weekend = false;
-}
-
-  // could be a temporary fix for source img problem with facebook api
-  var imgFix = function (str) {
-    str = str.split(".");
-    str[1] = "xx";
-    str = str.join(".");
-  return str;
-};
-
-var get_events = function(event_types, host_type, page_to_request, request, response) {
-  var batchArray = []
+  var dateNow = moment().format("MM-DD-YYYY");
+  var weekDay = moment().weekday();
   
+  if (weekDay == 4 || weekDay == 1 || weekDay == 2 || weekDay == 3) {
+    var weekend_start = moment(moment().add(5-weekDay, 'days')).format("MM-DD-YYYY");;
+    var weekend_stop = moment(moment().add(6-weekDay, 'days')).format("MM-DD-YYYY");;
+    var mid_weekend = moment(moment().add(7-weekDay, 'days')).format("MM-DD-YYYY");;
+  } else if (weekDay == 5) {
+    var weekend_start = moment().format("MM-DD-YYYY");
+    var weekend_stop = moment(moment().add(2, 'days')).format("MM-DD-YYYY");
+    var mid_weekend = moment(moment().add(1, 'days')).format("MM-DD-YYYY"); 
+  } else if (weekDay == 6) {
+    var weekend_start = false;
+    var weekend_stop = moment(moment().add(1, 'days')).format("MM-DD-YYYY");
+    var mid_weekend = dateNow
+  } else {
+    var weekend_start = dateNow
+    var weekend_stop = false;
+    var mid_weekend = false;
+  }
+
+var get_events = function(event_types, host_type, page_to_request, main_img, cover_text, request, response) {
+  var batchArray = []
+
   if (event_types.length == 1 && host_type == 'Venue') {
     var query_string = 'SELECT * FROM event_hosts WHERE event_type = ($1)';
   } else if (event_types.length == 4 && host_type == 'Special Event') {
@@ -86,11 +86,9 @@ var get_events = function(event_types, host_type, page_to_request, request, resp
 
   pg.connect(process.env.DATABASE_URL, function(err, client, done) {
     client.query(query_string, event_types, function(err, result) {
-      done();
       if (err)
        { console.error(err); response.send("Error " + err); }
-      else
-       { 
+      else { 
          
          for (i=0; i < result.rows.length; i++) {
            batchArray.push(
@@ -107,7 +105,7 @@ var get_events = function(event_types, host_type, page_to_request, request, resp
           var events = [];
           if (error) {
             console.log(error);
-            res.render('pages/livemusic', {events: "error", moment: moment, dateNow: dateNow, weekDay: weekDay, weekend_start: weekend_start, mid_weekend: mid_weekend, weekend_stop: weekend_stop});
+            res.send('There seems to be an error on the server.' + error);
           } else {
             for (var i=0; i< res.length; i++) {
               data.push(JSON.parse(res[i]['body'])['events']['data']);
@@ -125,52 +123,138 @@ var get_events = function(event_types, host_type, page_to_request, request, resp
               return 0
             })
 
-            response.render(page_to_request, {events: events, moment: moment, dateNow: dateNow, weekDay: weekDay, weekend_start: weekend_start, mid_weekend: mid_weekend, weekend_stop: weekend_stop, imgFix: imgFix});
+            response.render(page_to_request, {
+              events: events,
+              moment: moment,
+              main_img: main_img,
+              cover_text: cover_text,
+              dateNow: dateNow,
+              weekDay: weekDay,
+              weekend_start: weekend_start,
+              mid_weekend: mid_weekend,
+              weekend_stop: weekend_stop,
+              imgFix: imgFix
+            });
           }
       
         });
-        }
+      }
+      done();
     });
+    pg.end()
   });
 }
 
 app.get('/', function(request, response) {
-  get_events(['Live Shows','Art Exhibition', 'Craft Market'], 'Venue', 'pages/index', request, response);
-  
+  get_events(['Live Shows','Art Exhibition', 'Craft Market'], 'Venue', 'pages/eventsmain', 'play-69992.jpg', 'Welcome to Rock Worthy', request, response);
 });
 
 app.get('/live-music', function(request, response) {
-  get_events(['Live Shows'], 'Venue', 'pages/main/livemusic', request, response);
+  get_events(['Live Shows'], 'Venue', 'pages/eventsmain', 'musician-2708190_1920.jpg', 'Live Music Events', request, response);
 });
 
 app.get('/art-exhibitions', function(request, response) {
-  get_events(['Art Exhibition'], 'Venue', 'pages/main/artexhibitions', request, response);
+  get_events(['Art Exhibition'], 'Venue', 'pages/eventsmain', 'statue-2648579_1920.jpg', 'Art Exhibition Events', request, response);
 });
 
 app.get('/craft-markets', function(request, response) {
-  get_events(['Craft Market'],'Venue', 'pages/main/craftmarkets', request, response);
+  get_events(['Craft Market'],'Venue', 'pages/eventsmain', 'lisbon-2660748_1920.jpg', 'Craft Market Events', request, response);
 });
 
 app.get('/special-events', function(request, response) {
-  get_events(['Live Shows', 'Art Exhibition', 'Craft Market', 'Special Event'],'Special Event', 'pages/main/specialevents', request, response);
+  get_events(['Live Shows', 'Art Exhibition', 'Craft Market', 'Special Event'],'Special Event', 'pages/eventsmain', 'stainless-2576185_1920.jpg', 'Special Events', request, response);
 });
 
 app.get('/event/:event_id/detail', function(request, response) {
 
   graph.get(request.params.event_id + "/?fields=cover,name,ticket_uri,description,attending_count,interested_count,start_time,end_time,place", function(err, res) {
     if (err) {
-      response.send("The page requested does not exist.");
+      response.send("The page requested does not exist." + error);
     } else {
-      response.render('pages/detail/event_detail', {event: res, imgFix: imgFix, marked: marked})
+      response.render('pages/detail/event_detail', {event: res, imgFix: imgFix, marked: marked});
     }
   });
 
 });
 
+app.get('/venues', function(request, response) {
+  var batchArray = []
+
+  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+    client.query('SELECT * FROM event_hosts WHERE host_type = $1', ['Venue'], function(err, result) {
+      if (err)
+       { console.error(err); response.send("Error " + err); }
+      else { 
+         
+         for (i=0; i < result.rows.length; i++) {
+           batchArray.push(
+             {
+               method: "GET",
+               relative_url: result.rows[i].host_id + "/?fields=fan_count,picture,category,name"
+             }
+           )
+         }
+         graph.batch(
+          batchArray,
+           function(error, res) {
+          var data = [];
+          var venues = [];
+          if (error) {
+            console.log(error);
+            res.send('There seems to be an error on the server.' + error);
+          } else {
+            for (var i=0; i< res.length; i++) {
+              data.push(JSON.parse(res[i]['body']));
+            }
+            for(var i = 0; i < data.length; i++)
+            {
+                venues = venues.concat(data[i]);
+            }
+            venues = venues.sort(function(a, b) {
+              if (a['fan_count'] > b['fan_count']) {
+                return -1;
+              } else if ( a['fan_count'] < b['fan_count']) {
+                return +1;
+              }
+              return 0
+            })
+
+            response.render('pages/venues', {
+              venues: venues,
+              imgFix: imgFix
+            });
+          }
+      
+        });
+      }
+      done();
+    });
+    pg.end()
+  });
+
+});
+
+app.get('/venue/:venue_id/page', function(request, response) {
+  graph.get(request.params.venue_id + "/?fields=cover,events{cover,ticket_uri,name,place,attending_count,interested_count,start_time,end_time},fan_count,picture,category,name", function(err, res) {
+    if (err) {
+      response.send("The page requested does not exist." + err);
+    } else {
+      response.render('pages/detail/venue_detail', {
+        venue: res,
+        moment: moment,
+        dateNow: dateNow,
+        weekDay: weekDay,
+        weekend_start: weekend_start,
+        mid_weekend: mid_weekend,
+        weekend_stop: weekend_stop,
+        imgFix: imgFix
+      });
+    }
+  });
+});
+
 app.get('/contact', function(request, response) {
-
-  response.render('pages/contact', {formErrors: false, successMsg: false, user: false})
-
+  response.render('pages/contact', {formErrors: false, successMsg: false, user: false});
 });
 
 app.post('/contact', function(request, response) {
@@ -219,6 +303,10 @@ app.post('/contact', function(request, response) {
 
 });
 
+app.get('/about', function(request, response) {
+  response.render('pages/about');
+});
+
 app.get('/cool', function(request, response) {
   response.send(cool());
 });
@@ -226,12 +314,14 @@ app.get('/cool', function(request, response) {
 app.get('/db', function (request, response) {
   pg.connect(process.env.DATABASE_URL, function(err, client, done) {
     client.query('SELECT * FROM event_hosts', function(err, result) {
-      done();
       if (err)
        { console.error(err); response.send("Error " + err); }
       else
        { response.render('pages/db', {results: result.rows} ); }
+
+       done();
     });
+    pg.end()
   });
 });
 

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <% include ../partials/header.ejs %>
+</head>
+
+<% include ../partials/nav.ejs %>
+
+<body>
+
+    <div class="container-fluid">
+            <br />
+            <div class="row">
+                <div class="col-1 hidden-md-down"></div>
+                <div class="col-12 col-md-10">
+                    <table class="table table-hover" style="background-color: #ffffff;">
+                        <thead style="color: #ffffff;">
+                        <tr style="background-color:#ffc107 !important;">
+                            <th>#</th>
+                            <th></th>
+                            <th>Name</th>
+                            <th>Category</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <% venues.forEach(function(venue) { %>
+                        <tr>
+                            <th scope="row"></th>
+                            <td><img src="<%- venue.picture.data.url %>" style="height:50px; width:50px;"></td>
+                            <td><a href="/venue/<%- venue.id %>/page"><%- venue.name %></a></td>
+                            <td><%- venue.category %></td>
+                        </tr>
+                        <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+<% include ../partials/scripts.ejs %>
+</body>
+
+</html>

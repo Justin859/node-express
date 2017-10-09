@@ -173,7 +173,7 @@ sub {
     background-size: center !important;
     height: 312px !important;
     width: auto;
-    background-repeat: repeat-x !important;
+    /*background-repeat: repeat-x !important;*/
     background-color: #000000;
     box-shadow: 6px 0px 6px #888888;    
 }

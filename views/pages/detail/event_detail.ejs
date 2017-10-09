@@ -29,7 +29,11 @@
               <% };%>  
         <div class="card-block" style="overflow: hidden;">
             <h4 class="card-title"><%= (event).name %></h4>
-            <p class="card-text"><%- marked((event).description) %></p>
+            <p class="card-text">
+                <% if ((event).description) { %>
+                <%- marked((event).description) %>
+                <% } %>
+            </p>
         </div>
         </div>
     </div>
