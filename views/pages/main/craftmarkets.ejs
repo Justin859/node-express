@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+<% include ../../partials/header.ejs %>
+</head>
+
+<% include ../../partials/nav.ejs %>
+
+<body>
+
+<div class="cover-photo" id="top-page" style="background: url('/assets/images/lisbon-2660748_1920.jpg') center center; background-size: cover;">
+    <div class="cover-text"><h3 class="display-4">Craft Market Events</h3></div>
+</div>
+<br />
+<!--
+<div class="container">
+  <ul>
+    <li><%= (weekend_start) %></li>
+    <li><%= (mid_weekend) %></li>
+    <li><%= (weekend_stop) %></li>
+    <li><%= (weekDay) %></li>    
+  </ul>
+</div>
+-->
+<div class="container hidden-sm-down">
+    <div class="row">
+      <div class="col-12" id="weekend-events-heading">
+            <div class="card">
+                <div class="card-block">
+                    <h3 class="display-4" style="margin-left: 25px;">Events This Weekend</h3>
+                </div>
+            </div>
+      </div>
+    </div>
+</div>
+<div class="col-12 heading hidden-md-up" id="weekend-heading">
+    <h4 class="hidden-md-up text-center">Events This Weekend</h4>
+</div>
+<br />
+<div class="container">
+        <div class="row loading">
+            <div class="col-12" align="center">
+                <br />
+                <div class="loader-items"></div> 
+            </div>
+        </div>
+        <div class="grid">
+            <% events.forEach(function(event){  %>
+              <% if ( moment((event).start_time).format("MM-DD-YYYY") == weekend_start || moment((event).start_time).format("MM-DD-YYYY") == mid_weekend || moment((event).start_time).format("MM-DD-YYYY") == weekend_stop) { %>
+                <div class="grid-item">
+                    <div class="card hide" style="height: auto;">
+                        <div style="height: 100%;">
+                          <% if ((event).cover) { %>
+                            <img class="card-img-top img-fluid" src="<%- imgFix((event).cover.source) %>" alt="">                                
+                          <% };%>  
+                            <div class="card-block">
+                              <h4 class="card-title"><%=(event).name %></h4>
+                              <p class="card-text"><b>Attending</b>&nbsp;<span class="badge badge-info"><%= (event).attending_count %></span>
+                                <b>interested</b>&nbsp;<span class="badge badge-warning"><%= (event).interested_count %></span></p>
+                            </div>
+                            <ul class="list-group list-group-flush">
+                                <% if ((event).place) { %>
+                                <li class="list-group-item"><b>Place</b>&nbsp;<%= (event).place.name %></li>                                        
+                                <% }; %>
+                                <li class="list-group-item"><h4>On a <%= moment((event).start_time).format("dddd") %></h4></li>
+                                <li class="list-group-item"><p><b>Start</b>&nbsp;<%= moment((event).start_time).format("DD-MM-YYYY h:mmA") %></p>
+                                  <% if ((event).end_time) { %>
+                                    <p><b>End</b>&nbsp; <%= moment((event).end_time).format("DD-MM-YYYY h:mmA") %></p>
+                                  <% }; %>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-center">
+                                  <div class="btn-group" role="group" aria-label="Basic example">
+                                      <a type="button" href="/event/<%- (event).id %>/detail/" class="btn btn-secondary">view event</a>
+                                      <a type="button" href="https://www.facebook.com/events/<%- (event).id %>" class="btn btn-secondary"><i style="color:#3b5998;" class="fa fa-facebook-official"></i></a>
+                                      <% if ((event).ticket_uri) { %>
+                                      <a type="button" target="_blank" href="<%- (event).ticket_uri %>" class="btn btn-secondary"><i class="fa fa-ticket"></i></a>
+                                      <% }; %>  
+                                  </div>
+                                </li>
+                            </ul>
+                        </div>
+                      </div>
+                  </div>
+              <% }; %>
+
+            <% }); %>
+        </div>
+        <br />
+</div>
+
+<div class="container hidden-sm-down">
+    <div class="row">
+        <div class="col-12" id="upcoming-events-heading">
+            <div class="card">
+                <div class="card-block">
+                    <h3 class="display-4" style="margin-left: 25px;">Upcoming Events</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-12 heading hidden-md-up" id="upcoming-heading">
+    <h4 class="hidden-md-up text-center">Upcoming Events</h4>
+</div>
+<br />
+<div class="container">
+    <div class="row loading">
+        <div class="col-12" align="center">
+            <br />
+            <div class="loader-items"></div> 
+        </div>
+    </div>
+    <div class="grid">
+        <% events.forEach(function(event){  %>
+          <% if (moment((event).start_time).format("YYYYMMDD") >= moment().format("YYYYMMDD") && moment((event).start_time).format("MM-DD-YYYY") !== weekend_start && moment((event).start_time).format("MM-DD-YYYY") !== mid_weekend && moment((event).start_time).format("MM-DD-YYYY") !== weekend_stop) { %>
+            <div class="grid-item">
+                <div class="card hide" style="height: auto;">
+                    <div style="height: 100%;">
+                        <% if ((event).cover) { %>
+                          <img class="card-img-top img-fluid" src="<%- imgFix((event).cover.source) %>" alt="">                                
+                        <% };%>                              
+                        <div class="card-block">
+                          <h4 class="card-title"><%=(event).name %></h4>
+                          <p class="card-text"><b>Attending</b>&nbsp;<span class="badge badge-info"><%= (event).attending_count %></span>
+                            <b>interested</b>&nbsp;<span class="badge badge-warning"><%= (event).interested_count %></span></p>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            <% if ((event).place) { %>
+                                <li class="list-group-item"><b>Place</b>&nbsp;<%= (event).place.name %></li>                                        
+                            <% }; %>                                <li class="list-group-item"><h4>On a <%= moment((event).start_time).format("dddd") %></h4></li>
+                            <li class="list-group-item"><p><b>Start</b>&nbsp;<%= moment((event).start_time).format("DD-MM-YYYY h:mmA") %></p>
+                              <% if ((event).end_time) { %>
+                              <p><b>End</b>&nbsp; <%= moment((event).end_time).format("DD-MM-YYYY h:mmA") %></p>
+                            <% }; %>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-center">
+                              <div class="btn-group" role="group" aria-label="Basic example">
+                                  <a type="button" href="/event/<%- (event).id %>/detail/" class="btn btn-secondary">view event</a>
+                                  <a type="button" href="https://www.facebook.com/events/<%- (event).id %>" class="btn btn-secondary"><i style="color:#3b5998;" class="fa fa-facebook-official"></i></a>
+                                  <% if ((event).ticket_uri) { %>
+                                  <a type="button" target="_blank" href="<%- (event).ticket_uri %>" class="btn btn-secondary"><i class="fa fa-ticket"></i></a>
+                                  <% }; %>  
+                              </div>
+                            </li>
+                        </ul>
+                    </div>
+                  </div>
+              </div>
+          <% }; %>
+
+        <% }); %>
+    </div>
+    <br />
+</div>
+
+    
+<a href="#top-page" class="btn-top-hide" id="myBtn"><span class="material-icons" style="color: #ffffff;">arrow_upward</span></a>
+<div class="hidden-sm-down events-tag events-tag-closed" id="weekend-events-tag"><h5>Weekend Events</h5></div>
+<div class="hidden-sm-down events-tag events-tag-closed" id="upcoming-events-tag"><h5>Upcoming Events</h5></div>
+
+<% include ../../partials/scripts.ejs %>
+<% include ../../partials/eventscripts.ejs %>
+</body>
+
+</html>

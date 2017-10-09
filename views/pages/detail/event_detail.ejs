@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <% include ../../partials/header.ejs %>
+</head>
+
+<% include ../../partials/nav.ejs %>
+
+<body>
+
+<div class="container" style="padding-top:60px;">
+    
+<div class="row">
+    <div class="col-12 text-center">
+        <div class="card">
+            <div class="card-block">
+                <h3 class="card-title"><%= (event).name %></h3>
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+<div class="row">
+<div class="col-3 hidden-sm-down"></div>
+    <div class="col-12 col-md-6">
+        <div class="card">
+            <% if ((event).cover) { %>
+                <img class="card-img-top img-fluid" src="<%- imgFix((event).cover.source) %>" alt="">                                
+              <% };%>  
+        <div class="card-block" style="overflow: hidden;">
+            <h4 class="card-title"><%= (event).name %></h4>
+            <p class="card-text"><%- marked((event).description) %></p>
+        </div>
+        </div>
+    </div>
+</div>
+<br />
+<div class="row">
+    <div class="col-2 hidden-sm-down"></div>
+    <div class="col-12 text-center">
+        <div class="card">
+            <div class="card-block">
+                <h3 class="card-title"><%=(event).place.name %></h3>
+            </div>
+        </div>  
+    </div>
+</div>       
+<div class="row">
+    <div class="col-1 hidden-sm-down"></div>
+    <div class="col-12">
+        <iframe
+        class="google-map"
+        width="100%"
+        height="auto"
+        frameborder="0" style="border:0;"
+        src="https://www.google.com/maps/embed/v1/place?key=AIzaSyCUGbVg0er5HiP_5ARNdlabdkoJIs2ERjI
+            &q=<%- event.place.location.latitude %>,<%- event.place.location.longitude %>" allowfullscreen>
+        </iframe>
+    </div>
+</div> 
+</div>
+<br />
+
+<% include ../../partials/scripts.ejs %>
+
+</body>
+</html>

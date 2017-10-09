@@ -6,6 +6,7 @@ var exphbs = require('express-handlebars');
 var sendemail = require('sendemail');
 var graph = require('fbgraph');
 var moment = require('moment');
+var marked = require('marked');
 var pg = require('pg');
 var express = require('express');
 var app = express();
@@ -32,11 +33,22 @@ app.use(expressValidator()); // Add this after the bodyParser middlewares!
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 
+marked.setOptions({
+  renderer: new marked.Renderer(),
+  gfm: true,
+  tables: true,
+  breaks: false,
+  pedantic: false,
+  sanitize: true,
+  smartLists: true,
+  smartypants: false
+});
+
 var dateNow = moment().format("MM-DD-YYYY");
 var weekDay = moment().weekday();
 
 if (weekDay == 4 || weekDay == 1 || weekDay == 2 || weekDay == 3) {
-  var weekend_start = moment(moment(dateNow).add(4-weekDay, 'days')).format("MM-DD-YYYY");;
+  var weekend_start = moment(moment(dateNow).add(5-weekDay, 'days')).format("MM-DD-YYYY");;
   var weekend_stop = moment(moment(weekend_start).add(2, 'days')).format("MM-DD-YYYY");;
   var mid_weekend = moment(moment(weekend_start).add(1, 'days')).format("MM-DD-YYYY");;
 } else if (weekDay == 5) {
@@ -52,6 +64,14 @@ if (weekDay == 4 || weekDay == 1 || weekDay == 2 || weekDay == 3) {
   var weekend_stop = false;
   var mid_weekend = false;
 }
+
+  // could be a temporary fix for source img problem with facebook api
+  var imgFix = function (str) {
+    str = str.split(".");
+    str[1] = "xx";
+    str = str.join(".");
+  return str;
+};
 
 var get_events = function(event_types, host_type, page_to_request, request, response) {
   var batchArray = []
@@ -104,13 +124,7 @@ var get_events = function(event_types, host_type, page_to_request, request, resp
               }
               return 0
             })
-            // could be a temporary fix for source img problem with facebook api
-            var imgFix = function (str) {
-              str = str.split(".");
-              str[1] = "xx";
-              str = str.join(".");
-           return str;
-          };
+
             response.render(page_to_request, {events: events, moment: moment, dateNow: dateNow, weekDay: weekDay, weekend_start: weekend_start, mid_weekend: mid_weekend, weekend_stop: weekend_stop, imgFix: imgFix});
           }
       
@@ -126,19 +140,31 @@ app.get('/', function(request, response) {
 });
 
 app.get('/live-music', function(request, response) {
-  get_events(['Live Shows'], 'Venue', 'pages/livemusic', request, response);
+  get_events(['Live Shows'], 'Venue', 'pages/main/livemusic', request, response);
 });
 
 app.get('/art-exhibitions', function(request, response) {
-  get_events(['Art Exhibition'], 'Venue', 'pages/artexhibitions', request, response);
+  get_events(['Art Exhibition'], 'Venue', 'pages/main/artexhibitions', request, response);
 });
 
 app.get('/craft-markets', function(request, response) {
-  get_events(['Craft Market'],'Venue', 'pages/craftmarkets', request, response);
+  get_events(['Craft Market'],'Venue', 'pages/main/craftmarkets', request, response);
 });
 
 app.get('/special-events', function(request, response) {
-  get_events(['Live Shows', 'Art Exhibition', 'Craft Market', 'Special Event'],'Special Event', 'pages/specialevents', request, response);
+  get_events(['Live Shows', 'Art Exhibition', 'Craft Market', 'Special Event'],'Special Event', 'pages/main/specialevents', request, response);
+});
+
+app.get('/event/:event_id/detail', function(request, response) {
+
+  graph.get(request.params.event_id + "/?fields=cover,name,ticket_uri,description,attending_count,interested_count,start_time,end_time,place", function(err, res) {
+    if (err) {
+      response.send("The page requested does not exist.");
+    } else {
+      response.render('pages/detail/event_detail', {event: res, imgFix: imgFix, marked: marked})
+    }
+  });
+
 });
 
 app.get('/contact', function(request, response) {
@@ -174,13 +200,21 @@ app.post('/contact', function(request, response) {
   };
 
   email('welcome', person, function(error, result){
-    console.log(' - - - - - - - - - - - - - - - - - - - - -> email sent: ');
-    console.log(result);
-    console.log(' - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
+    if (error) {
+      response.send(error);
+      // There are no errors so perform action with valid data (e.g. save record).
+    } else {
+      console.log(' - - - - - - - - - - - - - - - - - - - - -> email sent: ');
+      console.log(result);
+      console.log(' - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
+
+      response.render('pages/contact', {formErrors: false, successMsg: 'Your query has been sent. We will contact you as soon as possible.', user: false});
+      // There are no errors so perform action with valid data (e.g. save record).
+    }
+
   });
 
-    response.render('pages/contact', {formErrors: false, successMsg: 'Your query has been sent. We will contact you as soon as possible.', user: false});
-     // There are no errors so perform action with valid data (e.g. save record).
+
   }
 
 });
