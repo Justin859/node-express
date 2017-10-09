@@ -17,7 +17,7 @@ $(document).ready(function(){
             e.preventDefault()
         });
     
-        $(".container, .container-fluid").click(function() {
+        $(".container, .container-fluid, .cover-photo").click(function() {
             if($('#navigation-side-bar').hasClass('nav-open')) {
                 $('nav').removeClass("nav-open");
                 $('nav').addClass("nav-closed");

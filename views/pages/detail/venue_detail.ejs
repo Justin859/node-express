@@ -39,7 +39,7 @@
           </div>
         </div>
     </div>
-    <div class="col-12 heading hidden-md-up hide" id="weekend-heading">
+    <div class="col-12 heading hidden-md-up" id="weekend-heading">
         <h4 class="hidden-md-up text-center">Events This Weekend</h4>
     </div>
     <br />
@@ -119,7 +119,7 @@
                     <% venue.events.data.forEach(function(event){  %>
                         <% if (moment((event).start_time).format("YYYYMMDD") >= moment().format("YYYYMMDD") && moment((event).start_time).format("MM-DD-YYYY") !== weekend_start && moment((event).start_time).format("MM-DD-YYYY") !== mid_weekend && moment((event).start_time).format("MM-DD-YYYY") !== weekend_stop) { %>
                           <div class="grid-item">
-                        <div class="card hide" style="height: auto;">
+                        <div class="card" style="height: auto;">
                             <div style="height: 100%;">
                               <% if ((event).cover) { %>
                                 <img class="card-img-top img-fluid" src="<%- imgFix((event).cover.source) %>" alt="">                                
