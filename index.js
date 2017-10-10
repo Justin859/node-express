@@ -156,6 +156,8 @@ var get_events = function(event_types, host_type, page_to_request, main_img, cov
             })
 
             response.render(page_to_request, {
+              userAuthenticated: request.isAuthenticated,
+              user: request.user,
               events: events,
               moment: moment,
               main_img: main_img,
@@ -349,6 +351,11 @@ app.get('/auth/facebook', passport.authenticate('facebook'));
 app.get('/auth/facebook/callback',
 passport.authenticate('facebook', { successRedirect: '/profile',
                                     failureRedirect: '/login' }));
+
+app.get('/logout', function(request, response) {
+  request.logout();
+  response.redirect('/');
+})
 
 app.get('/cool', function(request, response) {
   response.send(cool());

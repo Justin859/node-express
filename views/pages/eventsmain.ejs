@@ -11,7 +11,11 @@
 <div class="cover-photo" id="top-page" style="background: url('/assets/images/<%- main_img %>') center center; background-size: cover;">
     <div class="cover-text">
         <h3 class="display-4"><%= cover_text %></h3>
+        <% if (userAuthenticated) { %>
         <a href="/auth/facebook" style="color:#ffffff;">Login with Facebook</a>
+        <% } else { %>
+        <a href="/logout" style="color:#ffffff;">Logout <%= user.displayName %></a>
+        <% }; %>    
     </div>
 </div>
 <br />
