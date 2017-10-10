@@ -330,13 +330,14 @@ app.get('/about', function(request, response) {
   response.render('pages/about');
 });
 
-app.get('/auth/facebook', passport.authenticate('facebook'));
+app.get('/auth/facebook', function(request, response, next) {
+  request.passport.authenticate('facebook')(request, response, next);
+}); 
 
-app.get('/auth/facebook/callback',
-  passport.authenticate('facebook', { failureRedirect: '/'}),
-  function(req, res) {
-    res.redirect('/');
-  });
+app.get('/auth/facebook/callback', function(request, response, next) {
+  request.passport.authenticate('facebook', { failureRedirect: '/', succesRedirect: '/'}
+  )(request, response, next);
+});
 
 app.get('/cool', function(request, response) {
   response.send(cool());
