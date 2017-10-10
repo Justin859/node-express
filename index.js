@@ -331,11 +331,11 @@ app.get('/about', function(request, response) {
   response.render('pages/about');
 });
 
-app.get('/auth/facebook', function(request, response, next) {
+router.get('/auth/facebook', function(request, response, next) {
   request.passport.authenticate('facebook')(request, response, next);
 }); 
 
-app.get('/auth/facebook/callback', function(request, response, next) {
+router.get('/auth/facebook/callback', function(request, response, next) {
   request.passport.authenticate('facebook', { failureRedirect: '/', succesRedirect: '/'}
   )(request, response, next);
 });
