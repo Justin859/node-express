@@ -23,31 +23,19 @@ app.use(express.static(__dirname + '/public'));
 });
 
 // Facebook Strategy
+
 passport.use(new FacebookStrategy({
-    clientID: process.env.FACEBOOK_API_ID,
-    clientSecret: process.env.FACEBOOK_APP_SECRET,
-    callbackURL: "https://obscure-brushlands-94270.herokuapp.com/auth/facebook/callback",
-    enableProof: true
-  },
-  function(accessToken, refreshToken, profile, cb) {
-    User.findOrCreate({ facebookId: profile.id }, function (err, user) {
-        return cb(err, user);
-    });
-  }
+  clientID: process.env.FACEBOOK_API_ID,
+  clientSecret: process.env.FACEBOOK_APP_SECRET,
+  callbackURL: "https://obscure-brushlands-94270.herokuapp.com/auth/facebook/callback/auth/facebook/callback"
+},
+function(accessToken, refreshToken, profile, done) {
+  User.findOrCreate(..., function(err, user) {
+    if (err) { return done(err); }
+    done(null, user);
+  });
+}
 ));
-
-passport.serializeUser(function(user, cb) {
-  cb(null, user);
-});
-
-passport.deserializeUser(function(obj, cb) {
-  cb(null, obj);
-});
-
-// Initialize Passport and restore authentication state, if any, from the
-// session.
-app.use(passport.initialize());
-app.use(passport.session());
 
 // express handlebars
 app.engine('handlebars', exphbs({defaultLayout: 'main'}));
@@ -337,15 +325,11 @@ app.get('/about', function(request, response) {
   response.render('pages/about');
 });
 
-app.get('/auth/facebook',
-  passport.authenticate('facebook'));
+app.get('/auth/facebook', passport.authenticate('facebook'));
 
 app.get('/auth/facebook/callback',
-  passport.authenticate('facebook', { failureRedirect: '/login' }),
-  function(req, res) {
-    // Successful authentication, redirect home. 
-    res.redirect('/');
-});
+passport.authenticate('facebook', { successRedirect: '/',
+                                    failureRedirect: '/login' }));
 
 app.get('/cool', function(request, response) {
   response.send(cool());
