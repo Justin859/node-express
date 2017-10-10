@@ -42,6 +42,9 @@ passport.deserializeUser(function(obj, cb) {
   cb(null, obj);
 });
 
+app.use(passport.initialize());
+app.use(passport.session());
+
 // express handlebars
 app.engine('handlebars', exphbs({defaultLayout: 'main'}));
 app.set('view engine', 'handlebars');
