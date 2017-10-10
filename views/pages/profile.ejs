@@ -1,1 +1,8 @@
-You are - <%= user %>
+You are - 
+<ul>
+        <% user.forEach(function(data) { %>
+
+        <li><%= data %></li>
+        
+        <% }); %>
+</ul>
