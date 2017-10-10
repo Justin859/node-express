@@ -26,7 +26,7 @@ app.use(express.static(__dirname + '/public'));
 passport.use(new FacebookStrategy({
     clientID: process.env.FACEBOOK_API_ID,
     clientSecret: process.env.FACEBOOK_APP_SECRET,
-    callbackURL: "https://obscure-brushlands-94270.herokuapp.com/auth/facebook"
+    callbackURL: "https://obscure-brushlands-94270.herokuapp.com/auth/facebook/callback"
   },
   function(accessToken, refreshToken, profile, cb) {
     User.findOrCreate({ facebookId: profile.id }, function (err, user) {
