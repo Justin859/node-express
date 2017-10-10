@@ -12,7 +12,6 @@ var marked = require('marked');
 var pg = require('pg');
 var express = require('express');
 var app = express();
-var router = express.Router();
 
 app.set('port', (process.env.PORT || 5000));
 
@@ -25,22 +24,15 @@ app.use(express.static(__dirname + '/public'));
 
 // Facebook Strategy
 passport.use(new FacebookStrategy({
-  clientID: process.env.FACEBOOK_API_ID,
-  clientSecret: process.env.FACEBOOK_APP_SECRET,
-  callbackURL: "https://obscure-brushlands-94270.herokuapp.com/auth/facebook/callback"
-
-},
-
-function(accessToken, refreshToken, profile, done) {
-  User.findOrCreate({ facebookId: profile.id }, function(err, user) {
-    if (err) { return done(err); }
-
-    done(null, user);
-
+    clientID: process.env.FACEBOOK_API_ID,
+    clientSecret: process.env.FACEBOOK_APP_SECRET,
+    callbackURL: "https://obscure-brushlands-94270.herokuapp.com/auth/facebook"
+  },
+  function(accessToken, refreshToken, profile, cb) {
+    User.findOrCreate({ facebookId: profile.id }, function (err, user) {
+      return cb(err, user);
     });
-
   }
-
 ));
 
 // express handlebars
@@ -331,13 +323,14 @@ app.get('/about', function(request, response) {
   response.render('pages/about');
 });
 
-router.get('/auth/facebook', function(request, response, next) {
-  request.passport.authenticate('facebook')(request, response, next);
-}); 
+app.get('/auth/facebook',
+  passport.authenticate('facebook'));
 
-router.get('/auth/facebook/callback', function(request, response, next) {
-  request.passport.authenticate('facebook', { failureRedirect: '/', succesRedirect: '/'}
-  )(request, response, next);
+app.get('/auth/facebook/callback',
+  passport.authenticate('facebook', { failureRedirect: '/' }),
+  function(req, res) {
+    // Successful authentication, redirect home. 
+    res.redirect('/');
 });
 
 app.get('/cool', function(request, response) {
