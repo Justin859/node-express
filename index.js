@@ -46,7 +46,7 @@ function(accessToken, refreshToken, profile, cb) {
       else if (result.rows[0]) { 
         return cb(null, profile);
       } else {
-        client.query('INSERT INTO auth_users(id, provider, name, email) VALUES($1, $2, $3, $4) RETURNING *', [prifile.id, profile.provider, profile.displayName, profile.email[0]], function(err, result) {
+        client.query('INSERT INTO auth_users(id, provider, name, email) VALUES($1, $2, $3, $4) RETURNING *', [profile.id, profile.provider, profile.displayName, profile.email[0]], function(err, result) {
         
         })
         return cb(null, profile);
