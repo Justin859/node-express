@@ -29,8 +29,8 @@ passport.use(new FacebookStrategy({
   clientSecret: process.env.FACEBOOK_APP_SECRET,
   callbackURL: "https://obscure-brushlands-94270.herokuapp.com/auth/facebook/callback"
 },
-function(accessToken, refreshToken, profile, done) {
-    done(null, profile);
+function(accessToken, refreshToken, profile, cb) {
+    return cb(null, profile);
   }
 ));
 
