@@ -12,6 +12,7 @@ var marked = require('marked');
 var pg = require('pg');
 var express = require('express');
 var app = express();
+var router = express.Router();
 
 app.set('port', (process.env.PORT || 5000));
 
