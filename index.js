@@ -52,6 +52,20 @@ passport.deserializeUser(function(obj, cb) {
 app.use(passport.initialize());
 app.use(passport.session());
 
+function ensureLoggedIn() {
+  return function(req, res, next) {
+    // isAuthenticated is set by `deserializeUser()`
+    if (!req.isAuthenticated || !req.isAuthenticated()) {
+      res.status(401).send({
+        success: false,
+        message: 'You need to be authenticated to access this page!'
+      })
+    } else {
+      next()
+    }
+  }
+}
+
 // express handlebars
 app.engine('handlebars', exphbs({defaultLayout: 'main'}));
 app.set('view engine', 'handlebars');
@@ -156,7 +170,7 @@ var get_events = function(event_types, host_type, page_to_request, main_img, cov
             })
 
             response.render(page_to_request, {
-              userAuthenticated: request.isAuthenticated,
+              userAuthenticated: !request.isAuthenticated(),
               user: request.user,
               events: events,
               moment: moment,
@@ -342,7 +356,7 @@ app.get('/about', function(request, response) {
   response.render('pages/about');
 });
 
-app.get('/profile', function(req, res){
+app.get('/profile', ensureLoggedIn(), function(req, res){
   res.render('pages/profile', { user: req.user });
 });
 
