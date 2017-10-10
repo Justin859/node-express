@@ -333,10 +333,16 @@ app.get('/about', function(request, response) {
   response.render('pages/about');
 });
 
+app.get('pages/profile',
+require('connect-ensure-login').ensureLoggedIn(),
+function(req, res){
+  res.render('profile', { user: req.user });
+});
+
 app.get('/auth/facebook', passport.authenticate('facebook'));
 
 app.get('/auth/facebook/callback',
-passport.authenticate('facebook', { successRedirect: '/',
+passport.authenticate('facebook', { successRedirect: '/profile',
                                     failureRedirect: '/login' }));
 
 app.get('/cool', function(request, response) {
