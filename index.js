@@ -17,6 +17,13 @@ app.set('port', (process.env.PORT || 5000));
 
 app.use(express.static(__dirname + '/public'));
 
+// Use application-level middleware for common functionality, including
+// logging, parsing, and session handling.
+app.use(require('morgan')('combined'));
+app.use(require('cookie-parser')());
+app.use(require('body-parser').urlencoded({ extended: true }));
+app.use(require('express-session')({ secret: 'keyboard cat', resave: true, saveUninitialized: true }));
+
 // facebook graph
  graph.get("oauth/access_token?client_id=" + process.env.FACEBOOK_API_ID + "&client_secret=" + process.env.FACEBOOK_APP_SECRET  + "&grant_type=client_credentials", function(error, response) {
   graph.setAccessToken(response['access_token']);
