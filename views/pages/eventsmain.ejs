@@ -9,7 +9,10 @@
 <body>
 
 <div class="cover-photo" id="top-page" style="background: url('/assets/images/<%- main_img %>') center center; background-size: cover;">
-    <div class="cover-text"><h3 class="display-4"><%= cover_text %></h3></div>
+    <div class="cover-text">
+        <h3 class="display-4"><%= cover_text %></h3>
+        <a href="/auth/facebook" style="color:#ffffff;">Login with Facebook</a>
+    </div>
 </div>
 <br />
 <!--
@@ -62,7 +65,7 @@
                                     <% if ((event).place) { %>
                                     <li class="list-group-item"><b>Place</b>&nbsp;<%= (event).place.name %></li>                                        
                                     <% }; %>
-                                    <li class="list-group-item"><h4>On a <%= moment((event).start_time).format("dddd") %></h4></li>
+                                    <li class="list-group-item"><h4>This <%= moment((event).start_time).format("dddd") %></h4></li>
                                     <li class="list-group-item"><p><b>Start</b>&nbsp;<%= moment((event).start_time).format("DD-MM-YYYY h:mmA") %></p>
                                       <% if ((event).end_time) { %>
                                         <p><b>End</b>&nbsp; <%= moment((event).end_time).format("DD-MM-YYYY h:mmA") %></p>

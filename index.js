@@ -5,6 +5,8 @@ var expressValidator = require('express-validator');
 var exphbs = require('express-handlebars');
 var sendemail = require('sendemail');
 var graph = require('fbgraph');
+var passport = require('passport'),
+    FacebookStrategy = require('passport-facebook').Strategy;
 var moment = require('moment');
 var marked = require('marked');
 var pg = require('pg');
@@ -18,7 +20,27 @@ app.use(express.static(__dirname + '/public'));
 // facebook graph
  graph.get("oauth/access_token?client_id=" + process.env.FACEBOOK_API_ID + "&client_secret=" + process.env.FACEBOOK_APP_SECRET  + "&grant_type=client_credentials", function(error, response) {
   graph.setAccessToken(response['access_token']);
-})
+});
+
+// Facebook Strategy
+passport.use(new FacebookStrategy({
+  clientID: process.env.FACEBOOK_API_ID,
+  clientSecret: process.env.FACEBOOK_APP_SECRET,
+  callbackURL: "https://obscure-brushlands-94270.herokuapp.com/auth/facebook/callback"
+
+},
+
+function(accessToken, refreshToken, profile, done) {
+  User.findOrCreate({ facebookId: profile.id }, function(err, user) {
+    if (err) { return done(err); }
+
+    done(null, user);
+
+    });
+
+  }
+
+));
 
 // express handlebars
 app.engine('handlebars', exphbs({defaultLayout: 'main'}));
@@ -238,6 +260,7 @@ app.get('/venue/:venue_id/page', function(request, response) {
   graph.get(request.params.venue_id + "/?fields=cover,events{cover,ticket_uri,name,place,attending_count,interested_count,start_time,end_time},fan_count,picture,category,name", function(err, res) {
     if (err) {
       response.send("The page requested does not exist." + err);
+      console.log(err)
     } else {
       response.render('pages/detail/venue_detail', {
         venue: res,
@@ -306,6 +329,14 @@ app.post('/contact', function(request, response) {
 app.get('/about', function(request, response) {
   response.render('pages/about');
 });
+
+app.get('/auth/facebook', passport.authenticate('facebook'));
+
+app.get('/auth/facebook/callback',
+  passport.authenticate('facebook', { failureRedirect: '/'}),
+  function(req, res) {
+    res.redirect('/');
+  });
 
 app.get('/cool', function(request, response) {
   response.send(cool());
