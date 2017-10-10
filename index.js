@@ -333,8 +333,8 @@ app.get('/about', function(request, response) {
   response.render('pages/about');
 });
 
-app.get('pages/profile', function(req, res){
-  res.render('profile', { user: req.user });
+app.get('profile', function(req, res){
+  res.render('pages/profile', { user: req.user });
 });
 
 app.get('/auth/facebook', passport.authenticate('facebook'));
