@@ -30,15 +30,23 @@ passport.use(new FacebookStrategy({
   },
   function(accessToken, refreshToken, profile, cb) {
     User.findOrCreate({ facebookId: profile.id }, function (err, user) {
-      if (err) {
-        console.log(err)
-      } else {
         return cb(err, user);
-      }
-     
     });
   }
 ));
+
+passport.serializeUser(function(user, cb) {
+  cb(null, user);
+});
+
+passport.deserializeUser(function(obj, cb) {
+  cb(null, obj);
+});
+
+// Initialize Passport and restore authentication state, if any, from the
+// session.
+app.use(passport.initialize());
+app.use(passport.session());
 
 // express handlebars
 app.engine('handlebars', exphbs({defaultLayout: 'main'}));
