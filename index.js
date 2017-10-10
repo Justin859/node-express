@@ -333,9 +333,7 @@ app.get('/about', function(request, response) {
   response.render('pages/about');
 });
 
-app.get('pages/profile',
-require('connect-ensure-login').ensureLoggedIn(),
-function(req, res){
+app.get('pages/profile', function(req, res){
   res.render('profile', { user: req.user });
 });
 
