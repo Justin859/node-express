@@ -37,7 +37,25 @@ passport.use(new FacebookStrategy({
   callbackURL: "https://obscure-brushlands-94270.herokuapp.com/auth/facebook/callback"
 },
 function(accessToken, refreshToken, profile, cb) {
-    return cb(null, profile);
+  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+    client.query('SELECT * FROM auth_users WHERE id = $1', [profile.id], function(err, result) {
+      if (err) {
+         console.error(err); response.send("Error " + err); 
+        }
+      else if (result) { 
+
+        return cb(null, profile);
+      } else {
+        client.query('INSERT INTO auth_users(id, provider, name, email) VALUES($1, $2, $3, $4) RETURNING *', [prifile.id, profile.provider, profile.displayName, profile.email[0]], function(err, result) {
+        
+        })
+        return cb(null, profile);
+      }
+      done();
+    });
+    pg.end()
+  });
+    
   }
 ));
 
