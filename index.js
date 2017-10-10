@@ -333,7 +333,7 @@ app.get('/about', function(request, response) {
   response.render('pages/about');
 });
 
-app.get('profile', function(req, res){
+app.get('/profile', function(req, res){
   res.render('pages/profile', { user: req.user });
 });
 
