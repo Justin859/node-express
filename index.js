@@ -30,7 +30,7 @@ passport.use(new FacebookStrategy({
   callbackURL: "https://obscure-brushlands-94270.herokuapp.com/auth/facebook/callback"
 },
 function(accessToken, refreshToken, profile, done) {
-    done(null, user);
+    done(null, profile);
   }
 ));
 
