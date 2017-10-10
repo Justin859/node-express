@@ -30,7 +30,12 @@ passport.use(new FacebookStrategy({
   },
   function(accessToken, refreshToken, profile, cb) {
     User.findOrCreate({ facebookId: profile.id }, function (err, user) {
-      return cb(err, user);
+      if (err) {
+        console.log(err)
+      } else {
+        return cb(err, user);
+      }
+     
     });
   }
 ));
@@ -327,7 +332,7 @@ app.get('/auth/facebook',
   passport.authenticate('facebook'));
 
 app.get('/auth/facebook/callback',
-  passport.authenticate('facebook', { failureRedirect: '/' }),
+  passport.authenticate('facebook', { failureRedirect: '/login' }),
   function(req, res) {
     // Successful authentication, redirect home. 
     res.redirect('/');
