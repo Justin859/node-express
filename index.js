@@ -168,7 +168,6 @@ var get_events = function(options, request, response) {
       host_type = options.host_type,
       main_img = options.main_img,
       cover_text = options.cover_text
-
   var batchArray = []
 
   if (event_types.length == 1 && host_type == 'Venue') {
