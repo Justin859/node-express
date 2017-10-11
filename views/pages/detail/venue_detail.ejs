@@ -60,7 +60,7 @@
                                     <img class="card-img-top img-fluid" src="<%- imgFix((event).cover.source) %>" alt="">                                
                                     <% };%>  
                                     <div class="card-block">
-                                        <h4 class="card-title"><%=(event).name %></h4>
+                                        <h4 class="card-title"><%- lengthFix(event.name) %></h4>
                                         <p class="card-text"><b>Attending</b>&nbsp;<span class="badge badge-info"><%= (event).attending_count %></span>
                                         <b>interested</b>&nbsp;<span class="badge badge-warning"><%= (event).interested_count %></span></p>
                                     </div>
@@ -127,7 +127,7 @@
                                 <img class="card-img-top img-fluid" src="<%- imgFix((event).cover.source) %>" alt="">                                
                               <% };%>  
                                 <div class="card-block">
-                                  <h4 class="card-title"><%=(event).name %></h4>
+                                  <h4 class="card-title"><%- lengthFix(event.name) %></h4>
                                   <p class="card-text"><b>Attending</b>&nbsp;<span class="badge badge-info"><%= (event).attending_count %></span>
                                     <b>interested</b>&nbsp;<span class="badge badge-warning"><%= (event).interested_count %></span></p>
                                 </div>

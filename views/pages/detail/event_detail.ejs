@@ -28,7 +28,7 @@
                 <img class="card-img-top img-fluid" src="<%- imgFix((event).cover.source) %>" alt="">                                
               <% };%>  
         <div class="card-block" style="overflow: hidden;">
-            <h4 class="card-title"><%= (event).name %></h4>
+            <h4 class="card-title"><%= event.name %></h4>
             <p class="card-text">
                 <% if ((event).description) { %>
                 <%- marked((event).description) %>
@@ -51,6 +51,7 @@
     </div>
 </div>
 <% }; %>
+
 <% if ((event).place.location) { %>  
 <div class="row">
     <div class="col-1 hidden-sm-down"></div>

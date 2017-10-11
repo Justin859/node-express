@@ -136,6 +136,15 @@ app.set('view engine', 'ejs');
       str = str.join(".");
     return str;
   };
+    var lengthFix = function (str) {
+      strArr = str.split(' ');
+      strArr.forEach(function(item) {
+        if (item.length > 25) {
+          str = str.slice(0, 25);
+        }
+      });
+      return str;
+    };
 
   var weekend_start,
       mid_weekend,
@@ -229,7 +238,8 @@ var get_events = function(options, request, response) {
               weekend_start: weekend_start,
               mid_weekend: mid_weekend,
               weekend_stop: weekend_stop,
-              imgFix: imgFix
+              imgFix: imgFix,
+              lengthFix: lengthFix
             });
           }
       
@@ -293,7 +303,7 @@ app.get('/event/:event_id/detail', function(request, response) {
     if (err) {
       response.send("The page requested does not exist." + error);
     } else {
-      response.render('pages/detail/event_detail', {event: res, imgFix: imgFix, marked: marked});
+      response.render('pages/detail/event_detail', {event: res, imgFix: imgFix, marked: marked, lengthFix: lengthFix});
     }
   });
 
@@ -370,7 +380,8 @@ app.get('/venue/:venue_id/page', function(request, response) {
         weekend_start: weekend_start,
         mid_weekend: mid_weekend,
         weekend_stop: weekend_stop,
-        imgFix: imgFix
+        imgFix: imgFix,
+        lengthFix, lengthFix
       });
     }
   });
