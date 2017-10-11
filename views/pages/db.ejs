@@ -11,7 +11,7 @@
 
 <ul>
     <% results.forEach(function(r) { %>
-        <li><%= r.provider %> -- <%= r.name %> -- <%= r.emails %> -- <%= r.id %> </li>
+        <li><%= r.provider %> -- <%= r.name %> -- <%= r.id %> <%= r.created_at %></li>
     <% }); %>
 </ul>
 
