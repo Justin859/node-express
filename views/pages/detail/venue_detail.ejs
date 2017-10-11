@@ -66,7 +66,9 @@
                                     </div>
                                     <ul class="list-group list-group-flush">
                                         <% if ((event).place) { %>
-                                        <li class="list-group-item"><b>Place</b>&nbsp;<%= (event).place.name %></li>                                        
+                                            <% if (event.place.name.length < 100) { %>
+                                                <li class="list-group-item"><b>Place</b>&nbsp;<%= (event).place.name %></li>
+                                            <% } %>
                                         <% }; %>
                                         <li class="list-group-item"><h4>This <%= moment((event).start_time).format("dddd") %></h4></li>
                                         <li class="list-group-item"><p><b>Start</b>&nbsp;<%= moment((event).start_time).format("DD-MM-YYYY h:mmA") %></p>
@@ -131,7 +133,9 @@
                                 </div>
                                 <ul class="list-group list-group-flush">
                                     <% if ((event).place) { %>
-                                    <li class="list-group-item"><b>Place</b>&nbsp;<%= (event).place.name %></li>                                        
+                                        <% if (event.place.name.length < 100) { %>
+                                            <li class="list-group-item"><b>Place</b>&nbsp;<%= (event).place.name %></li>
+                                        <% } %>
                                     <% }; %>
                                     <li class="list-group-item"><h4>On a <%= moment((event).start_time).format("dddd") %></h4></li>
                                     <li class="list-group-item"><p><b>Start</b>&nbsp;<%= moment((event).start_time).format("DD-MM-YYYY h:mmA") %></p>

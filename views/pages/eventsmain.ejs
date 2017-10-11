@@ -8,17 +8,61 @@
 
 <body>
 
+<!-- Modal -->
+<div class="modal fade" id="exampleModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">Login Rock Worthy</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="conatiner">
+            <div class="row">
+                <div class="col-1 hidden-sm-down offset-md-1">
+                    <i class="fa fa-facebook-square fa-3x" style="color:#3b5998;"></i>
+                </div>
+                <div class="col-12 col-md-8 offset-md-1">
+                    <a href="/auth/facebook" style="background-color:#3b5998;" class="btn btn-lg btn-info btn-block">
+                        <i class="fa fa-facebook-square hidden-md-up" style="padding-right: 15px;"></i>Login with Facebook
+                    </a>
+                </div>
+            </div>
+            <br />
+            <div class="row"> 
+                <div class="col-1 hidden-sm-down offset-md-1">
+                    <i class="fa fa-google fa-3x" style="color: #db3236;"></i>
+                </div>
+                <div class="col-12 col-md-8 offset-md-1">
+                    <a href="/auth/google" style="background-color: #db3236;" class="btn btn-lg btn-danger btn-block">
+                        <i class="fa fa-google hidden-md-up" style="padding-right: 30px;"></i>Login with Google
+                    </a>
+                </div>
+            </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="cover-photo" id="top-page" style="background: url('/assets/images/<%- main_img %>') center center; background-size: cover;">
     <div class="cover-text">
         <h3 class="display-4"><%= cover_text %></h3>
+        <br />
         <% if (userAuthenticated) { %>
-        <ul class="list-unstyled">
-            <li><a href="/auth/facebook" style="color:#ffffff;">Login with Facebook</a></li>
-            <li><a href="/auth/google" style="color:#ffffff;">Login with Google</a></li>
-        </ul>        
+            <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalLong">
+                <i class="fa fa-sign-in" style="padding-right: 15px;"></i>Login
+            </a>
         <% } else { %>
-        <a href="/logout" style="color:#ffffff;">Logout <%= user.displayName %></a>
-        <% }; %>    
+            <a href="/logout" class="btn btn-primary" style="color:#ffffff;">
+                <i class="fa fa-sign-out" style="padding-right: 15px;"></i>Logout <%= user.displayName %>
+            </a>
+        <% }; %>
     </div>
 </div>
 <br />
@@ -69,9 +113,11 @@
                                     <b>interested</b>&nbsp;<span class="badge badge-warning"><%= (event).interested_count %></span></p>
                                 </div>
                                 <ul class="list-group list-group-flush">
-                                    <% if ((event).place) { %>
-                                    <li class="list-group-item"><b>Place</b>&nbsp;<%= (event).place.name %></li>                                        
-                                    <% }; %>
+                                <% if ((event).place) { %>
+                                    <% if (event.place.name.length < 100) { %>
+                                        <li class="list-group-item"><b>Place</b>&nbsp;<%= (event).place.name %></li>
+                                    <% } %>
+                                <% }; %>
                                     <li class="list-group-item"><h4>This <%= moment((event).start_time).format("dddd") %></h4></li>
                                     <li class="list-group-item"><p><b>Start</b>&nbsp;<%= moment((event).start_time).format("DD-MM-YYYY h:mmA") %></p>
                                       <% if ((event).end_time) { %>
@@ -136,8 +182,11 @@
                             </div>
                             <ul class="list-group list-group-flush">
                                 <% if ((event).place) { %>
-                                    <li class="list-group-item"><b>Place</b>&nbsp;<%= (event).place.name %></li>                                        
-                                <% }; %>                                <li class="list-group-item"><h4>On a <%= moment((event).start_time).format("dddd") %></h4></li>
+                                    <% if (event.place.name.length < 100) { %>
+                                        <li class="list-group-item"><b>Place</b>&nbsp;<%= (event).place.name %></li>
+                                    <% } %>
+                                <% }; %>
+                                <li class="list-group-item"><h4>On a <%= moment((event).start_time).format("dddd") %></h4></li>
                                 <li class="list-group-item"><p><b>Start</b>&nbsp;<%= moment((event).start_time).format("DD-MM-YYYY h:mmA") %></p>
                                   <% if ((event).end_time) { %>
                                   <p><b>End</b>&nbsp; <%= moment((event).end_time).format("DD-MM-YYYY h:mmA") %></p>

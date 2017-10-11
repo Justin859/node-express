@@ -183,6 +183,28 @@ sub {
     padding: 5px 25px 18px 15px;
     text-align: right;
 }
+.cover-text-no-background {
+    background-color: rgba(255, 255, 255, 0.4);
+    padding: 5px 25px 18px 15px;
+    text-align: right;
+}
+
+.cover-text-no-background h3 {
+    color: #000000;
+    padding-bottom: 135px;
+}
+
+.cover-text-no-background .btn-primary {
+    background-color: rgba(255, 255, 255, 0.7);
+    color: #000000 !important;
+}
+.cover-text-no-background .btn-primary:hover,
+.cover-text-no-background .btn-primary:active,
+.cover-text-no-background .btn-primary:focus,
+ {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+}
 
 .cover-text h3 {
     color: #ffffff;
@@ -238,7 +260,25 @@ sub {
 
 .cover-image {
     box-shadow: 2px 1px 2px #888888 !important; 
-    border-radius: 2px;   
+}
+
+.btn-primary {
+    background-color: rgba(0, 0, 0, 0.4);
+    color: #f3f3f3 !important; 
+    border-color: transparent !important; 
+    border-radius: 0px !important;
+}
+
+.btn-primary:hover, .btn-primary:active, .btn-primary:focus {
+    color: #ffffff !important; 
+    
+    background-color: rgba(0, 0, 0, 0.7);
+    border-color: transparent !important;
+    box-shadow: 0px 0px 0px !important;
+}
+
+.btn {
+    border-radius: 0 !important;
 }
 
 .btn-warning {

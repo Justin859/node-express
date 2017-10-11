@@ -344,7 +344,9 @@ app.get('/venues', function(request, response) {
 
             response.render('pages/venues', {
               venues: venues,
-              imgFix: imgFix
+              imgFix: imgFix,
+              userAuthenticated: !request.isAuthenticated(),
+              user: request.user
             });
           }
       
@@ -378,7 +380,7 @@ app.get('/venue/:venue_id/page', function(request, response) {
 });
 
 app.get('/contact', function(request, response) {
-  response.render('pages/contact', {formErrors: false, successMsg: false, user: false});
+  response.render('pages/contact', {formErrors: false, successMsg: false, queryUser: false, userAuthenticated: !request.isAuthenticated(), user: request.user});
 });
 
 app.post('/contact', function(request, response) {
@@ -388,10 +390,10 @@ app.post('/contact', function(request, response) {
   request.sanitizeBody('name').escape();
   var errors = request.validationErrors();
 
-  var user = { name: request.body.name, email: request.body.email, query: request.body.query};
+  var queryUser = { name: request.body.name, email: request.body.email, query: request.body.query};
 
   if (errors) {
-      response.render('pages/contact', {formErrors: errors, successMsg: false, user: user});
+      response.render('pages/contact', {formErrors: errors, successMsg: false, querUser: user, userAuthenticated: !request.isAuthenticated(), user: request.user});
       // Render the form using error information
   } else {
 
@@ -400,10 +402,10 @@ app.post('/contact', function(request, response) {
   var email = sendemail.email;
 
   var person = {
-    name : user.name,
-    emailAddress : user.email,
+    name : queryUser.name,
+    emailAddress : queryUser.email,
     email: 'info@rockworthy.co.za',
-    query: user.query,
+    query: queryUser.query,
     subject:"Query from rockworthy.co.za"
   };
 
@@ -416,7 +418,7 @@ app.post('/contact', function(request, response) {
       console.log(result);
       console.log(' - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
 
-      response.render('pages/contact', {formErrors: false, successMsg: 'Your query has been sent. We will contact you as soon as possible.', user: false});
+      response.render('pages/contact', {formErrors: false, successMsg: 'Your query has been sent. We will contact you as soon as possible.', queryUser: false, userAuthenticated: !request.isAuthenticated(), user: request.user});
       // There are no errors so perform action with valid data (e.g. save record).
     }
 
@@ -427,7 +429,7 @@ app.post('/contact', function(request, response) {
 });
 
 app.get('/about', function(request, response) {
-  response.render('pages/about');
+  response.render('pages/about', {userAuthenticated: !request.isAuthenticated(), user: request.user});
 });
 
 app.get('/profile', ensureLoggedIn(), function(req, res){
