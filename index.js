@@ -450,7 +450,8 @@ app.get('/profile', ensureLoggedIn(), function(req, res){
 
 app.get('/auth/facebook', passport.authenticate('facebook'));
 
-app.get('/auth/google', passport.authenticate('google'));
+app.get('/auth/google',
+passport.authenticate('google', { scope: ['profile'] }));
 
 app.get('/auth/facebook/callback',
 passport.authenticate('facebook', { successRedirect: '/profile',
