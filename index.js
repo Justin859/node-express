@@ -6,7 +6,8 @@ var exphbs = require('express-handlebars');
 var sendemail = require('sendemail');
 var graph = require('fbgraph');
 var passport = require('passport'),
-    FacebookStrategy = require('passport-facebook').Strategy;
+    FacebookStrategy = require('passport-facebook').Strategy,
+    GoogleStrategy = require('passport-google-oauth20').Strategy;;
 var moment = require('moment');
 var marked = require('marked');
 var pg = require('pg');
@@ -30,24 +31,69 @@ app.use(require('express-session')({ secret: 'keyboard cat', resave: true, saveU
 });
 
 // Facebook Strategy
-
 passport.use(new FacebookStrategy({
   clientID: process.env.FACEBOOK_API_ID,
   clientSecret: process.env.FACEBOOK_APP_SECRET,
   callbackURL: "https://obscure-brushlands-94270.herokuapp.com/auth/facebook/callback"
 },
+
 function(accessToken, refreshToken, profile, cb) {
   pg.connect(process.env.DATABASE_URL, function(err, client, done) {
     client.query('SELECT * FROM auth_users WHERE id = $1', [profile.id], function(err, result) {
       if (err) {
          console.error(err); 
          response.send("Error " + err); 
-        }
-      else if (result.rows[0]) { 
-        return cb(null, profile);
+        } else if (result.rows[0]) { 
+            return cb(null, profile);
       } else {
+        var id = profile.id,
+            name = profile.displayName,
+            provider = profile.provider
+        if (profile.emails.length == 0) {
+          var emails = "none";
+        } else {
+          emails = provider.emails[0]
+        }
+
+
         client.query('INSERT INTO auth_users(id, provider, name, email) VALUES($1, $2, $3, $4) RETURNING *', [profile.id, profile.provider, profile.displayName, profile.emails], function(err, result) {
         
+        })
+        return cb(null, profile);
+      }
+      done();
+    });
+    pg.end()
+  });
+    
+  }
+));
+
+// Google Strategy
+passport.use(new GoogleStrategy({
+  clientID: process.env.GOOGLE_CLIENT_ID,
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  callbackURL: "https://obscure-brushlands-94270.herokuapp.com/auth/google/callback"
+},
+
+function(accessToken, refreshToken, profile, cb) {
+  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+    client.query('SELECT * FROM auth_users WHERE id = $1', [profile.id], function(err, result) {
+      if (err) {
+         console.error(err); 
+         response.send("Error " + err); 
+      } else if (result.rows[0]) { 
+          return cb(null, profile);
+      } else {
+        var id = profile.id,
+            name = profile.displayName,
+            provider = profile.provider
+        if (profile.emails.length == 0) {
+          var emails = "none";
+        } else {
+          emails = provider.emails[0]
+        }
+        client.query('INSERT INTO auth_users(id, provider, name, email) VALUES($1, $2, $3, $4) RETURNING *', [profile.id, profile.provider, profile.displayName, profile.emails], function(err, result) {
         })
         return cb(null, profile);
       }
@@ -97,17 +143,6 @@ app.use(expressValidator()); // Add this after the bodyParser middlewares!
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 
-marked.setOptions({
-  renderer: new marked.Renderer(),
-  gfm: true,
-  tables: true,
-  breaks: false,
-  pedantic: false,
-  sanitize: true,
-  smartLists: true,
-  smartypants: false
-});
-
     // could be a temporary fix for source img problem with facebook api
     var imgFix = function (str) {
       str = str.split(".");
@@ -116,28 +151,38 @@ marked.setOptions({
     return str;
   };
 
+  var weekend_start,
+      mid_weekend,
+      weekend_stop
+
   var dateNow = moment().format("MM-DD-YYYY");
   var weekDay = moment().weekday();
   
   if (weekDay == 4 || weekDay == 1 || weekDay == 2 || weekDay == 3) {
-    var weekend_start = moment(moment().add(5-weekDay, 'days')).format("MM-DD-YYYY");;
-    var weekend_stop = moment(moment().add(6-weekDay, 'days')).format("MM-DD-YYYY");;
-    var mid_weekend = moment(moment().add(7-weekDay, 'days')).format("MM-DD-YYYY");;
+     weekend_start = moment(moment().add(5-weekDay, 'days')).format("MM-DD-YYYY");;
+     weekend_stop = moment(moment().add(6-weekDay, 'days')).format("MM-DD-YYYY");;
+     mid_weekend = moment(moment().add(7-weekDay, 'days')).format("MM-DD-YYYY");;
   } else if (weekDay == 5) {
-    var weekend_start = moment().format("MM-DD-YYYY");
-    var weekend_stop = moment(moment().add(2, 'days')).format("MM-DD-YYYY");
-    var mid_weekend = moment(moment().add(1, 'days')).format("MM-DD-YYYY"); 
+     weekend_start = moment().format("MM-DD-YYYY");
+     weekend_stop = moment(moment().add(2, 'days')).format("MM-DD-YYYY");
+     mid_weekend = moment(moment().add(1, 'days')).format("MM-DD-YYYY"); 
   } else if (weekDay == 6) {
-    var weekend_start = false;
-    var weekend_stop = moment(moment().add(1, 'days')).format("MM-DD-YYYY");
-    var mid_weekend = dateNow
+     weekend_start = false;
+     weekend_stop = moment(moment().add(1, 'days')).format("MM-DD-YYYY");
+     mid_weekend = dateNow
   } else {
-    var weekend_start = dateNow
-    var weekend_stop = false;
-    var mid_weekend = false;
+     weekend_start = dateNow
+     weekend_stop = false;
+     mid_weekend = false;
   }
 
-var get_events = function(event_types, host_type, page_to_request, main_img, cover_text, request, response) {
+var get_events = function(options, request, response) {
+
+  var event_types = options.event_types,
+      host_type = options.host_type,
+      main_img = options.main_img,
+      cover_text = options.cover_text
+
   var batchArray = []
 
   if (event_types.length == 1 && host_type == 'Venue') {
@@ -187,7 +232,7 @@ var get_events = function(event_types, host_type, page_to_request, main_img, cov
               return 0
             })
 
-            response.render(page_to_request, {
+            response.render('pages/eventsmain', {
               userAuthenticated: !request.isAuthenticated(),
               user: request.user,
               events: events,
@@ -211,24 +256,50 @@ var get_events = function(event_types, host_type, page_to_request, main_img, cov
   });
 }
 
+
 app.get('/', function(request, response) {
-  get_events(['Live Shows','Art Exhibition', 'Craft Market'], 'Venue', 'pages/eventsmain', 'play-69992.jpg', 'Welcome to Rock Worthy', request, response);
+  get_events({
+    event_types: ['Live Shows','Art Exhibition', 'Craft Market'],
+    host_type: 'Venue',
+    main_img: 'play-69992.jpg',
+    cover_text: 'Welcome to Rock Worthy'
+  }, request, response);
 });
 
 app.get('/live-music', function(request, response) {
-  get_events(['Live Shows'], 'Venue', 'pages/eventsmain', 'musician-2708190_1920.jpg', 'Live Music Events', request, response);
+  get_events({
+    event_types: ['Live Shows'],
+    host_type: 'Venue',
+    main_img: 'musician-2708190_1920.jpg',
+    cover_text: 'Live Music Events'
+  }, request, response);
 });
 
 app.get('/art-exhibitions', function(request, response) {
-  get_events(['Art Exhibition'], 'Venue', 'pages/eventsmain', 'statue-2648579_1920.jpg', 'Art Exhibition Events', request, response);
+  get_events({
+    event_types: ['Art Exhibition'],
+    host_type: 'Venue',
+    main_img: 'statue-2648579_1920.jpg',
+    cover_text: 'Art Exhibition Events'
+  }, request, response);
 });
 
 app.get('/craft-markets', function(request, response) {
-  get_events(['Craft Market'],'Venue', 'pages/eventsmain', 'lisbon-2660748_1920.jpg', 'Craft Market Events', request, response);
+  get_events({
+    event_types: ['Craft Market'],
+    host_type: 'Venue',
+    main_img: 'lisbon-2660748_1920.jpg',
+    cover_text: 'Craft Market Events'
+  }, request, response);
 });
 
 app.get('/special-events', function(request, response) {
-  get_events(['Live Shows', 'Art Exhibition', 'Craft Market', 'Special Event'],'Special Event', 'pages/eventsmain', 'stainless-2576185_1920.jpg', 'Special Events', request, response);
+  get_events({
+    event_types: ['Live Shows', 'Art Exhibition', 'Craft Market', 'Special Event'],
+    host_type: 'Special Event',
+    main_img: 'stainless-2576185_1920.jpg',
+    cover_text: 'Special Events'
+  }, request, response);
 });
 
 app.get('/event/:event_id/detail', function(request, response) {
@@ -365,7 +436,6 @@ app.post('/contact', function(request, response) {
 
   });
 
-
   }
 
 });
@@ -380,8 +450,13 @@ app.get('/profile', ensureLoggedIn(), function(req, res){
 
 app.get('/auth/facebook', passport.authenticate('facebook'));
 
+app.get('/auth/google', passport.authenticate('google'));
+
 app.get('/auth/facebook/callback',
 passport.authenticate('facebook', { successRedirect: '/profile',
+                                    failureRedirect: '/login' }));
+app.get('/auth/google/callback',
+passport.authenticate('google', { successRedirect: '/profile',
                                     failureRedirect: '/login' }));
 
 app.get('/logout', function(request, response) {

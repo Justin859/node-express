@@ -12,7 +12,10 @@
     <div class="cover-text">
         <h3 class="display-4"><%= cover_text %></h3>
         <% if (userAuthenticated) { %>
-        <a href="/auth/facebook" style="color:#ffffff;">Login with Facebook</a>
+        <ul class="list-unstyled">
+            <li><a href="/auth/facebook" style="color:#ffffff;">Login with Facebook</a></li>
+            <li><a href="/auth/google" style="color:#ffffff;">Login with Google</a></li>
+        </ul>        
         <% } else { %>
         <a href="/logout" style="color:#ffffff;">Logout <%= user.displayName %></a>
         <% }; %>    
