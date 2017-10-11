@@ -43,24 +43,20 @@ function(accessToken, refreshToken, profile, cb) {
       if (err) {
          console.error(err); 
          response.send("Error " + err); 
-        } else if (result.rows[0]) { 
-            return cb(null, profile);
+      } else if (result.rows[0]) { 
+          return cb(null, profile);
       } else {
         var id = profile.id,
             name = profile.displayName,
             provider = profile.provider
-      } 
-
         client.query('INSERT INTO auth_users(id, provider, name) VALUES($1, $2, $3) RETURNING *', [profile.id, profile.provider, profile.displayName], function(err, result) {
-        
         })
         return cb(null, profile);
       }
       done();
     });
     pg.end()
-  });
-    
+    });
   }
 ));
 
