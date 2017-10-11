@@ -340,7 +340,6 @@ app.get('/venues', function(request, response) {
               }
               return 0
             })
-
             response.render('pages/venues', {
               venues: venues,
               imgFix: imgFix,
@@ -348,7 +347,6 @@ app.get('/venues', function(request, response) {
               user: request.user
             });
           }
-      
         });
       }
       done();
@@ -397,7 +395,6 @@ app.post('/contact', function(request, response) {
   } else {
 
   // email
-
   var email = sendemail.email;
 
   var person = {
