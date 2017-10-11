@@ -49,14 +49,9 @@ function(accessToken, refreshToken, profile, cb) {
         var id = profile.id,
             name = profile.displayName,
             provider = profile.provider
-        if (profile.emails.length == 0) {
-          var emails = "none";
-        } else {
-          emails = provider.emails[0]
-        }
+      } 
 
-
-        client.query('INSERT INTO auth_users(id, provider, name, email) VALUES($1, $2, $3, $4) RETURNING *', [profile.id, profile.provider, profile.displayName, profile.emails], function(err, result) {
+        client.query('INSERT INTO auth_users(id, provider, name) VALUES($1, $2, $3) RETURNING *', [profile.id, profile.provider, profile.displayName], function(err, result) {
         
         })
         return cb(null, profile);
@@ -88,12 +83,7 @@ function(accessToken, refreshToken, profile, cb) {
         var id = profile.id,
             name = profile.displayName,
             provider = profile.provider
-        if (profile.emails.length == 0) {
-          var emails = "none";
-        } else {
-          emails = provider.emails[0]
-        }
-        client.query('INSERT INTO auth_users(id, provider, name, email) VALUES($1, $2, $3, $4) RETURNING *', [profile.id, profile.provider, profile.displayName, profile.emails], function(err, result) {
+        client.query('INSERT INTO auth_users(id, provider, name) VALUES($1, $2, $3) RETURNING *', [profile.id, profile.provider, profile.displayName], function(err, result) {
         })
         return cb(null, profile);
       }
