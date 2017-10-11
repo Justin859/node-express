@@ -14,7 +14,7 @@
     <div class="col-12 text-center">
         <div class="card">
             <div class="card-block">
-                <h3 class="card-title"><%= (event).name %></h3>
+                <h3 class="card-title"><%= lengthFix(event.name) %></h3>
             </div>
         </div>
     </div>
@@ -28,7 +28,7 @@
                 <img class="card-img-top img-fluid" src="<%- imgFix((event).cover.source) %>" alt="">                                
               <% };%>  
         <div class="card-block" style="overflow: hidden;">
-            <h4 class="card-title"><%= event.name %></h4>
+            <h4 class="card-title"><%= lengthFix(event.name) %></h4>
             <p class="card-text">
                 <% if ((event).description) { %>
                 <%- marked((event).description) %>
