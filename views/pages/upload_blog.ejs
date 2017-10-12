@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+<% include ../partials/header.ejs %>
+</head>
+
+<body>
+<% include ../partials/nav.ejs %>
+
+<div class="cover-photo" style="background: url('/assets/rockworthy_main.png') center center; background-size: contain; background-repeat: no-repeat; background-color: #ffffff;">
+    <div class="cover-text">
+        <h3 class="display-4">Administrator blog upload</h3>
+    </div>
+</div>
+<% if (formErrors) {  %>
+    <ul>
+    <% formErrors.forEach(function(error) { %>
+        <li><%= error.msg %></li>
+    <% }); %>
+    </ul>
+<% }; %>
+
+<% if (successMsg) { %>
+    
+    <br />
+    <div class="container">
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <strong>Holy guacamole!</strong> The blog has been uploaded succesfully!
+        </div>
+    </div>
+<% }; %>
+
+<br />
+<div class="container">
+    <div class="row">
+        <div class="col-12 col-md-8 offset-md-2">
+            <div class="card" style="padding: 15px;">
+                <div class="card-body">
+                    <h4 class="card-title">Upload a Blog</h4>
+                    <br />
+                    <div class="conatiner-fluid">
+                        <form action="" method="POST" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <input class="form-control" name="blog_title" type="text" placeholder="Blog Title" required/>
+                            </div>
+                            <div class="form-group">
+                                <input class="form-control" name="author" type="text" placeholder="Author of Blog" required/>
+                            </div>
+                            <div class="form-group">
+                                <textarea class="form-control" name="description" type="text" placeholder="Blog description" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <textarea class="form-control" name="content" type="text" placeholder="Blog content" rows="20" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <input type="file" class="form-control-file" name="img_src" required/>
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+
+<% include ../partials/scripts.ejs %>
+</body>
+
+</html>

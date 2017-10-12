@@ -1,8 +1,84 @@
-You are - 
-<ul>
+<!DOCTYPE html>
+<html>
+<head>
+<% include ../partials/header.ejs %>
+</head>
 
+<body>
+<% include ../partials/nav.ejs %>
 
-        <li><%= user.displayName %></li>
-        
+<!-- Modal -->
+<div class="modal fade" id="exampleModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLongTitle">Login Rock Worthy</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="conatiner">
+                <div class="row">
+                    <div class="col-1 hidden-sm-down offset-md-1">
+                        <i class="fa fa-facebook-square fa-3x" style="color:#3b5998;"></i>
+                    </div>
+                    <div class="col-12 col-md-8 offset-md-1">
+                        <a href="/auth/facebook" style="background-color:#3b5998;" class="btn btn-lg btn-info btn-block">
+                            <i class="fa fa-facebook-square hidden-md-up" style="padding-right: 15px;"></i>Login with Facebook
+                        </a>
+                    </div>
+                </div>
+                <br />
+                <div class="row"> 
+                    <div class="col-1 hidden-sm-down offset-md-1">
+                        <i class="fa fa-google fa-3x" style="color: #db3236;"></i>
+                    </div>
+                    <div class="col-12 col-md-8 offset-md-1">
+                        <a href="/auth/google" style="background-color: #db3236;" class="btn btn-lg btn-danger btn-block">
+                            <i class="fa fa-google hidden-md-up" style="padding-right: 30px;"></i>Login with Google
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+        </div>
+    </div>
+</div>
 
-</ul>
+<div class="cover-photo" style="background: url('/assets/rockworthy_main.png') center center; background-size: contain; background-repeat: no-repeat; background-color: #ffffff;">
+    <div class="cover-text-no-background">
+        <h3 class="display-4">About</h3>
+        <br />
+        <% if (userAuthenticated) { %>
+            <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalLong">
+                <i class="fa fa-sign-in" style="padding-right: 15px;"></i>Login
+            </a>
+        <% } else { %>
+            <a href="/logout" class="btn btn-primary" style="color:#ffffff;">
+                <i class="fa fa-sign-out" style="padding-right: 15px;"></i>Logout <%= user.displayName %>
+            </a>
+        <% }; %>
+    </div>
+</div>
+<br />
+<div class="container">
+    <div class="row">
+        <div class="col-12 col-md-8 offset-md-2">
+            <div class="card" style="padding: 15px;">
+                <div class="card-body">
+                    <h4 class="card-title">Welcome to Rock Worthy - <%= user.displayName  %></h4>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+
+<% include ../partials/scripts.ejs %>
+</body>
+
+</html>

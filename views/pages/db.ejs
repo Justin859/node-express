@@ -11,7 +11,14 @@
 
 <ul>
     <% results.forEach(function(r) { %>
-        <li><%= r.provider %> -- <%= r.name %> -- <%= r.id %> <%= r.created_at %></li>
+        <li>ID -- > <%= r.id %></li>
+        <li>BLOG TITLE -- > <%= r.blog_title %></li>
+        <li>AUTHOR NAME -- > <%= r.author_name %></li>
+        <li>DESCRIPTION -- > <%= r.description %></li>
+        <li>CONTENT -- > <%= r.content %></li>
+        <li>IMG SRC -- > <img src="<%- r.img_src %>" alt="nothing" /></li>
+        <li>CREATED AT -- > <%= r.created_at %></li>
+
     <% }); %>
 </ul>
 

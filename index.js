@@ -8,6 +8,10 @@ var graph = require('fbgraph');
 var passport = require('passport'),
     FacebookStrategy = require('passport-facebook').Strategy,
     GoogleStrategy = require('passport-google-oauth20').Strategy;
+var fileUpload = require('express-fileupload');
+var s3 = require('s3');
+var uuidv1 = require('uuid/v1');
+var fs = require('fs');
 var moment = require('moment');
 var marked = require('marked');
 var pg = require('pg');
@@ -28,6 +32,24 @@ app.use(require('express-session')({ secret: 'keyboard cat', resave: true, saveU
 // facebook graph
  graph.get("oauth/access_token?client_id=" + process.env.FACEBOOK_API_ID + "&client_secret=" + process.env.FACEBOOK_APP_SECRET  + "&grant_type=client_credentials", function(error, response) {
   graph.setAccessToken(response['access_token']);
+});
+
+// express fileupload
+app.use(fileUpload());
+
+// aws.amazon.com S3 Bucket
+var client = s3.createClient({
+  maxAsyncS3: 20,     // this is the default 
+  s3RetryCount: 3,    // this is the default 
+  s3RetryDelay: 1000, // this is the default 
+  multipartUploadThreshold: 20971520, // this is the default (20 MB) 
+  multipartUploadSize: 15728640, // this is the default (15 MB) 
+  s3Options: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    // any other options are passed to new AWS.S3() 
+    // See: http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/Config.html#constructor-property 
+  },
 });
 
 // Facebook Strategy
@@ -388,7 +410,7 @@ app.get('/venue/:venue_id/page', function(request, response) {
 });
 
 app.get('/contact', function(request, response) {
-  response.render('pages/contact', {formErrors: false, successMsg: false, queryUser: false, userAuthenticated: !request.isAuthenticated(), user: request.user});
+  response.render('pages/contact', {formErrors: false, successMsg: false, userAuthenticated: !request.isAuthenticated(), user: request.user});
 });
 
 app.post('/contact', function(request, response) {
@@ -401,7 +423,7 @@ app.post('/contact', function(request, response) {
   var queryUser = { name: request.body.name, email: request.body.email, query: request.body.query};
 
   if (errors) {
-      response.render('pages/contact', {formErrors: errors, successMsg: false, querUser: user, userAuthenticated: !request.isAuthenticated(), user: request.user});
+      response.render('pages/contact', {formErrors: errors, successMsg: false, userAuthenticated: !request.isAuthenticated(), user: request.user});
       // Render the form using error information
   } else {
 
@@ -460,13 +482,92 @@ app.get('/logout', function(request, response) {
   response.redirect('/');
 })
 
+app.get('/admin/upload-blog', function(request, response) {
+  response.render('pages/upload_blog', {formErrors: false, successMsg: false});
+});
+
+app.post('/admin/upload-blog', function(request, response) {
+  request.checkBody('blog_title', 'Enter blog title').notEmpty();
+  request.checkBody('author', 'Enter author name').notEmpty(); 
+  request.checkBody('description', 'Enter a description').notEmpty(); 
+  request.checkBody('content', 'Enter content for blog').notEmpty(); 
+  request.sanitizeBody('blog_title').escape();
+  var errors = request.validationErrors();
+
+  var blog_data = {
+                     blog_title: request.body.blog_title,
+                     author: request.body.author,
+                     description: request.body.description,
+                     content: request.body.content,
+                     img_src: request.body.img_src
+                  };
+
+  if (errors) {
+    response.render('pages/upload_blog', {formErrors: errors, successMsg: false});
+  } else {
+    if (!request.files) {
+      return response.status(400).send("No files were uploaded.");
+    } else {
+      var image = request.files.img_src;
+      var uuid_image_name  =  uuidv1() + "-" + image.name;
+      var s3link = "https://s3.amazonaws.com/rockworthy/blog_images/";
+
+      image.mv('public/blog_images/' + uuid_image_name, function(error) {
+        if (error) {
+          return response.status(500).send(error);
+        } else {
+          response.render('pages/upload_blog', {formErrors: false, successMsg: 'File has uploaded'});
+        }
+      });
+      var params = {
+        localFile: "public/blog_images/" + uuid_image_name,
+       
+        s3Params: {
+          Bucket: "rockworthy",
+          Key: "blog_images/" + uuid_image_name,
+          // other options supported by putObject, except Body and ContentLength. 
+          // See: http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#putObject-property 
+        },
+      };
+      var uploader = client.uploadFile(params);
+      uploader.on('error', function(err) {
+        console.error("unable to upload:", err.stack);
+      });
+      uploader.on('progress', function() {
+        console.log("progress", uploader.progressMd5Amount,
+                  uploader.progressAmount, uploader.progressTotal);
+      });
+      uploader.on('end', function() {
+        console.log("done uploading");
+        fs.unlink('public/blog_images/' + uuid_image_name, function(err) {
+          if (err) {
+            consoel.log(err)
+          } else {
+            console.log('removed imgage from server.');
+          }
+        })
+      });
+
+      pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+        client.query(
+          'INSERT INTO event_blogs(blog_title, author_name, description, content, img_src) VALUES($1, $2, $3, $4, $5) RETURNING *',
+           [blog_data.blog_title, blog_data.author, blog_data.description, blog_data.content, s3link + uuid_image_name], function(err, result) {
+            console.log(result);
+        });
+      });
+
+    }
+
+  }
+});
+
 app.get('/cool', function(request, response) {
   response.send(cool());
 });
 
 app.get('/db', function (request, response) {
   pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-    client.query('SELECT * FROM auth_users', function(err, result) {
+    client.query('SELECT * FROM event_blogs', function(err, result) {
       if (err)
        { console.error(err); response.send("Error " + err); }
       else
