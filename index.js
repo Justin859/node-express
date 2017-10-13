@@ -462,7 +462,7 @@ app.get('/about', function(request, response) {
 });
 
 app.get('/profile', ensureLoggedIn(), function(req, res){
-  res.render('pages/profile', { user: req.user });
+  res.render('pages/profile', { user: req.user, userAuthenticated: !request.isAuthenticated() });
 });
 
 app.get('/auth/facebook', passport.authenticate('facebook'));
