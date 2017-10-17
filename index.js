@@ -474,7 +474,7 @@ app.get('/event-blogs', function(request, response) {
         console.log(err);
         response.send("Error " + error);
       } else {
-        response.render('pages/event_blogs', {blogs: result.rows, userAuthenticated: !request.isAuthenticated()});
+        response.render('pages/event_blogs', {blogs: result.rows, userAuthenticated: !request.isAuthenticated(), user: request.user});
       }
       done();
     });
