@@ -4,9 +4,9 @@
   <% include ../../partials/header.ejs %>
 </head>
 
-<% include ../../partials/nav.ejs %>
-
 <body>
+
+<% include ../../partials/nav.ejs %>
 
 <div class="container" style="padding-top:60px;">
     
@@ -39,6 +39,7 @@
     </div>
 </div>
 <br />
+<% if (event.place) { %>
 <% if ((event).place.name.length < 100) { %>
 <div class="row">
     <div class="col-2 hidden-sm-down"></div>
@@ -51,6 +52,7 @@
     </div>
 </div>
 <% }; %>
+
 
 <% if ((event).place.location) { %>  
 <div class="row">
@@ -66,6 +68,7 @@
         </iframe>
     </div>
 </div> 
+<% }; %>
 <% }; %>
 </div>
 <br />

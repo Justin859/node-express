@@ -15,6 +15,7 @@ var fs = require('fs');
 var moment = require('moment');
 var marked = require('marked');
 var pg = require('pg');
+var features = require('./script_modules/features.js');
 var express = require('express');
 var app = express();
 
@@ -151,23 +152,6 @@ app.use(expressValidator()); // Add this after the bodyParser middlewares!
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 
-    // could be a temporary fix for source img problem with facebook api
-    var imgFix = function (str) {
-      str = str.split(".");
-      str[1] = "xx";
-      str = str.join(".");
-    return str;
-  };
-    var lengthFix = function (str) {
-      strArr = str.split(' ');
-      strArr.forEach(function(item) {
-        if (item.length > 25) {
-          str = str.slice(0, 25);
-        }
-      });
-      return str;
-    };
-
   var weekend_start,
       mid_weekend,
       weekend_stop
@@ -260,8 +244,8 @@ var get_events = function(options, request, response) {
               weekend_start: weekend_start,
               mid_weekend: mid_weekend,
               weekend_stop: weekend_stop,
-              imgFix: imgFix,
-              lengthFix: lengthFix
+              imgFix: features.imgFix,
+              lengthFix: features.lengthFix
             });
           }
       
@@ -325,7 +309,7 @@ app.get('/event/:event_id/detail', function(request, response) {
     if (err) {
       response.send("The page requested does not exist." + error);
     } else {
-      response.render('pages/detail/event_detail', {event: res, imgFix: imgFix, marked: marked, lengthFix: lengthFix});
+      response.render('pages/detail/event_detail', {event: res, imgFix: features.imgFix, marked: marked, lengthFix: features.lengthFix});
     }
   });
 
@@ -374,7 +358,7 @@ app.get('/venues', function(request, response) {
             })
             response.render('pages/venues', {
               venues: venues,
-              imgFix: imgFix,
+              imgFix: features.imgFix,
               userAuthenticated: !request.isAuthenticated(),
               user: request.user
             });
@@ -402,8 +386,9 @@ app.get('/venue/:venue_id/page', function(request, response) {
         weekend_start: weekend_start,
         mid_weekend: mid_weekend,
         weekend_stop: weekend_stop,
-        imgFix: imgFix,
-        lengthFix, lengthFix
+        imgFix: features.imgFix,
+        lengthFix: features.lengthFix,
+        userAuthenticated: !request.isAuthenticated()
       });
     }
   });
@@ -482,8 +467,43 @@ app.get('/logout', function(request, response) {
   response.redirect('/');
 })
 
+app.get('/event-blogs', function(request, response) {
+  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+    client.query('SELECT * FROM event_blogs', function(err, result) {
+      if(err) {
+        console.log(err);
+        response.send("Error " + error);
+      } else {
+        response.render('pages/event_blogs', {blogs: result.rows, userAuthenticated: !request.isAuthenticated()});
+      }
+      done();
+    });
+    pg.end();
+  });
+});
+
+app.get('/cool', function(request, response) {
+  response.send(cool());
+});
+
+app.get('/db', function (request, response) {
+  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+    client.query('SELECT * FROM event_blogs', function(err, result) {
+      if (err)
+       { console.error(err); response.send("Error " + err); }
+      else
+       { response.render('pages/db', {results: result.rows} ); }
+
+       done();
+    });
+    pg.end()
+  });
+});
+
+// Administraion pages
+
 app.get('/admin/upload-blog', function(request, response) {
-  response.render('pages/upload_blog', {formErrors: false, successMsg: false});
+  response.render('pages/admin/upload_blog', {formErrors: false, successMsg: false});
 });
 
 app.post('/admin/upload-blog', function(request, response) {
@@ -503,7 +523,7 @@ app.post('/admin/upload-blog', function(request, response) {
                   };
 
   if (errors) {
-    response.render('pages/upload_blog', {formErrors: errors, successMsg: false});
+    response.render('pages/admin/upload_blog', {formErrors: errors, successMsg: false});
   } else {
     if (!request.files) {
       return response.status(400).send("No files were uploaded.");
@@ -516,7 +536,7 @@ app.post('/admin/upload-blog', function(request, response) {
         if (error) {
           return response.status(500).send(error);
         } else {
-          response.render('pages/upload_blog', {formErrors: false, successMsg: 'File has uploaded'});
+          response.render('pages/admin/upload_blog', {formErrors: false, successMsg: 'File has uploaded'});
         }
       });
       var params = {
@@ -543,7 +563,7 @@ app.post('/admin/upload-blog', function(request, response) {
           if (err) {
             consoel.log(err)
           } else {
-            console.log('removed imgage from server.');
+            console.log('removed image from server.');
           }
         })
       });
@@ -561,22 +581,53 @@ app.post('/admin/upload-blog', function(request, response) {
   }
 });
 
-app.get('/cool', function(request, response) {
-  response.send(cool());
-});
-
-app.get('/db', function (request, response) {
+app.get('/admin/event-blogs', function(request, response) {
+  
   pg.connect(process.env.DATABASE_URL, function(err, client, done) {
     client.query('SELECT * FROM event_blogs', function(err, result) {
-      if (err)
-       { console.error(err); response.send("Error " + err); }
-      else
-       { response.render('pages/db', {results: result.rows} ); }
-
+      if (err) {
+         console.error(err); response.send("Error " + err); 
+      } else {
+          response.render('pages/admin/event_blogs', {results: result.rows, successMsg: false} ); 
+      }
        done();
     });
     pg.end()
   });
+  
+});
+
+app.post('/admin/event-blogs', function(request, response) {
+
+  var itemsToDelete = request.body;
+  var itemsArray = []
+  for (item in itemsToDelete) {
+    itemsArray.push(item);
+  }
+
+  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+    client.query('DELETE FROM event_blogs WHERE id = ANY($1)', [itemsArray], function(err, result) {
+      if (err) {
+         console.error(err); response.send("Error " + err); 
+      } else {
+        pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+          client.query('SELECT * FROM event_blogs', function(err, result) {
+            if (err) {
+               console.error(err); response.send("Error " + err); 
+            } else {
+                response.render('pages/admin/event_blogs', {results: result.rows, successMsg: "Selected items have been deleted!"}); 
+            }
+             done();
+          });
+          pg.end()
+        });
+      }
+       done();
+    });
+    pg.end()
+  });
+
+
 });
 
 app.listen(app.get('port'), function() {

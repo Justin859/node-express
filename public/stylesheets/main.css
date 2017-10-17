@@ -97,9 +97,26 @@ nav {
     border-radius: 2px;
     border: none;
 }
+
+.card-img-overlay {
+    background-color: rgba(0, 0, 0, 0.6) !important;
+    -webkit-transition: background-color .3s ease-out;
+    -moz-transition: background-color .3s ease-out;
+    -o-transition: background-color .3s ease-out;
+    transition: background-color .3s ease-out;
+}
+
 .heading-card {
     background-color: #ffc107;
     color: #ffffff;
+}
+
+.blog-item:hover .card-img-overlay {
+    background-color: rgba(0, 0, 0, 0.4) !important;
+}
+
+.blog-item:hover .card-text {
+    color: #ffffff !important;
 }
 
 .fret {
@@ -219,8 +236,6 @@ sub {
     box-shadow: 2px 1px 2px #888888 !important;
 }
 
-
-
 #myBtn {
     position: fixed; /* Fixed/sticky position */
     bottom: 20px; /* Place the button at the bottom of the page */
@@ -259,6 +274,10 @@ sub {
 
 .cover-image {
     box-shadow: 2px 1px 2px #888888 !important; 
+}
+
+.btn-info:active, .btn-warning:active {
+    color: #ffffff !important;
 }
 
 .btn-primary {

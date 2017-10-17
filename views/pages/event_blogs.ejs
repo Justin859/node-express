@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<% include ../partials/header.ejs %>
+</head>
+
+<body>
+<% include ../partials/nav.ejs %>
+
+<% include ../partials/login.ejs %>
+      
+      <div class="cover-photo" id="top-page" style="background: url('/assets/images/graffiti-369507_1920.jpg') center; background-size: cover;">
+          <div class="cover-text">
+              <h3 class="display-4">Event Blogs</h3>
+              <br />
+              <% if (userAuthenticated) { %>
+                  <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalLong">
+                      <i class="fa fa-sign-in" style="padding-right: 15px;"></i>Login
+                  </a>
+              <% } else { %>
+                  <a href="/logout" class="btn btn-primary" style="color:#ffffff;">
+                      <i class="fa fa-sign-out" style="padding-right: 15px;"></i>Logout <%= user.displayName %>
+                  </a>
+              <% }; %>
+          </div>
+      </div>
+<br />
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="grid">
+                <% blogs.forEach(function(blog){  %>
+                    <a href="#" class="blog-item">
+                        <div class="grid-item">
+                            <div class="card hide card-inverse" style="height: auto;">
+                                <img class="card-img img-fluid" src="<%- blog.img_src %>" alt="blog image">
+                                <div class="card-img-overlay">
+                                <h4 class="card-title"><%= blog.blog_title %></h4>
+                                <p class="card-text">
+                                    <%= blog.description.slice(1, 100) %>
+                                </p>
+                                <p class="card-text pull-right"><small style="color: #ffc107">- <%= blog.author_name%></small></p>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                <% }); %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<% include ../partials/scripts.ejs %>
+<script src="/bower_components/imagesloaded/imagesloaded.pkgd.min.js"></script>
+<script src="/bower_components/masonry/dist/masonry.pkgd.min.js"></script>
+<script src="/scripts/blog.js"></script>
+</body>
+
+</html>

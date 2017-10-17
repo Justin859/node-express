@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+<% include ../../partials/header.ejs %>
+</head>
+
+<body>
+<% include ../../partials/nav.ejs %>
+
+<div class="cover-photo" style="background: url('/assets/rockworthy_main.png') center center; background-size: contain; background-repeat: no-repeat; background-color: #ffffff;">
+    <div class="cover-text">
+        <h3 class="display-4">Administrator Blog Events</h3>
+    </div>
+</div>
+<br />
+<% if (successMsg) { %>
+    
+    <br />
+    <div class="container">
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <strong>Success</strong> <%= successMsg %>
+        </div>
+    </div>
+<% }; %>
+<br />
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <form action="" method="POST">
+                <div class="row">
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary pull-right">delete selected</button>                            
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-12">
+                        <table class="table">
+                            <thead style="color: #ffffff;">
+                                <tr style="background-color:#ffc107 !important;">
+                                    <th>#</th>
+                                    <th>title</th>
+                                    <th></th>
+                                    <th></th>
+                                    <th class="text-center">delete</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            <% results.forEach(function(blog) { %>
+                                <tr>
+                                    <td><%= blog.id %></td>
+                                    <td><%= blog.blog_title %></td>
+                                    <td><a href="event-blogs/<%- blog.id %>">view</a></td>
+                                    <td><a href="admin/event-blog/edit/<%- blog.id %>">edit</a></td>
+                                    <td class="text-center"><input type="checkbox" name="<%- blog.id %>"></td>
+                                </tr>
+                            <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+            </form>
+        </div>
+    </div>
+</div>
+
+<br />
+
+<% include ../../partials/scripts.ejs %>
+</body>
+
+</html>

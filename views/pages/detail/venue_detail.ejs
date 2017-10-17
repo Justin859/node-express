@@ -5,10 +5,27 @@
   <% include ../../partials/header.ejs %>
 </head>
 
-<% include ../../partials/nav.ejs %>
-
 <body>
 
+<% include ../../partials/nav.ejs %>
+<% include ../../partials/login.ejs %>
+
+<div class="cover-photo" style="background: url('/assets/rockworthy_main.png') center center; background-size: contain; background-repeat: no-repeat; background-color: #ffffff;">
+    <div class="cover-text-no-background">
+        <h3 class="display-4">Venues</h3>
+        <br />
+        <% if (userAuthenticated) { %>
+            <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalLong">
+                <i class="fa fa-sign-in" style="padding-right: 15px;"></i>Login
+            </a>
+        <% } else { %>
+            <a href="/logout" class="btn btn-primary" style="color:#ffffff;">
+                <i class="fa fa-sign-out" style="padding-right: 15px;"></i>Logout <%= user.displayName %>
+            </a>
+        <% }; %>
+    </div>
+</div>
+<br />
 <div class="main-banner" id="venue-heading">
         <div class="col-12" align="center">
             <div class="venue-header"><img style="height:50px; width:50px;"  src="<%- venue.picture.data.url %>"><span><%= venue.name %></span></div>
