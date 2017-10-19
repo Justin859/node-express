@@ -484,41 +484,60 @@ app.get('/event-blogs', function(request, response) {
 });
 
 app.get('/event-blogs/:blog_id/detail', function(request, response) {
-  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-    client.query('SELCET * FROM user_votes WHERE blog_id=$1 AND user_id=$2', [request.params.blog_id, request.user.id], function(err, result) {
-      if (err) {
-        console.log(err);
-      } else {
-        if(result.rows[0]) {
-          pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-            client.query('SELECT * FROM event_blogs WHERE id=$1', [request.params.blog_id], function(err, result) {
-              if (err) {
-                console.log(err);
-              } else {
-                response.render('pages/detail/event_blog_detail', {blog: result.rows[0], marked: marked, userAuthenticated: !request.isAuthenticated(), user: request.user, user_voted: true});
-              }
-            });
-          });
+
+  if (request.isAuthenticated()) {
+    pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+      client.query('SELCET * FROM user_votes WHERE blog_id=$1 AND user_id=$2', [request.params.blog_id, request.user.id], function(err, result) {
+        if (err) {
+          console.log(err);
         } else {
-          pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-            client.query('SELECT * FROM event_blogs WHERE id=$1', [request.params.blog_id], function(err, result) {
-              if (err) {
-                console.log(err);
-              } else {
-                response.render('pages/detail/event_blog_detail', {blog: result.rows[0], marked: marked, userAuthenticated: !request.isAuthenticated(), user: request.user, user_voted: false});
-              }
+          if(result.rows[0]) {
+            pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+              client.query('SELECT * FROM event_blogs WHERE id=$1', [request.params.blog_id], function(err, result) {
+                if (err) {
+                  console.log(err);
+                } else {
+                  response.render('pages/detail/event_blog_detail', {blog: result.rows[0], marked: marked, userAuthenticated: !request.isAuthenticated(), user: request.user, user_voted: true});
+                }
+                done()
+              });
+              pg.end();
             });
-          });
+          } else {
+            pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+              client.query('SELECT * FROM event_blogs WHERE id=$1', [request.params.blog_id], function(err, result) {
+                if (err) {
+                  console.log(err);
+                } else {
+                  response.render('pages/detail/event_blog_detail', {blog: result.rows[0], marked: marked, userAuthenticated: !request.isAuthenticated(), user: request.user, user_voted: false});
+                }
+                done()
+              });
+              pg.end();
+            });
+          }
         }
-      }
+      });
     });
-  });
+
+  } else {
+    pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+      client.query('SELECT * FROM event_blogs WHERE id=$1', [request.params.blog_id], function(err, result) {
+        if (err) {
+          console.log(err);
+        } else {
+          response.render('pages/detail/event_blog_detail', {blog: result.rows[0], marked: marked, userAuthenticated: !request.isAuthenticated(), user: request.user, user_voted: false});
+        }
+      });
+    });
+  }
+
 });
 
 app.post('/event-blogs/vote', function(request, response) {
 
-  if (user.isAuthenticated()) {
-    
+  if (request.isAuthenticated()) {
+
     var upvoteData = {
       id: request.body.id,
       upvoted: request.body.up,
