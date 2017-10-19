@@ -487,7 +487,7 @@ app.get('/event-blogs/:blog_id/detail', function(request, response) {
 
   if (request.isAuthenticated()) {
     pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-      client.query('SELCET * FROM user_votes WHERE blog_id=$1 AND user_id=$2', [request.params.blog_id, request.user.id], function(err, result) {
+      client.query('SELECT * FROM user_votes WHERE blog_id=$1 AND user_id=$2', [request.params.blog_id, request.user.id], function(err, result) {
         if (err) {
           console.log(err);
         } else {
