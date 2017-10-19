@@ -257,6 +257,41 @@ sub {
     top: 6px;
 }
 
+.heart-o {
+    color: #000000;
+}
+
+.heart {
+    color: #db3236;
+}
+
+.share {
+    color: #ffca28;
+}
+
+ .share:focus,
+    .share:active {
+   color: #ffca28;
+}
+
+.share:hover {
+    color: #ffc107
+}
+
+
+.heart:hover,
+ .heart-o:hover,
+  .heart:focus,
+   .heart-o:focus,
+    .heart:active,
+     .heart:active {
+    color: #db3236
+}
+
+.social-options a {
+    padding: 25px;
+}
+
 .btn-top-show {
     display: block;
     height: 50px;
@@ -276,7 +311,24 @@ sub {
     box-shadow: 2px 1px 2px #888888 !important; 
 }
 
-.btn-info:active, .btn-warning:active {
+.btn-facebook {
+    color: #ffffff;
+    background-color: #3b5998;
+    text-decoration: none !important;
+}
+
+.btn-google {
+    color: #ffffff;
+    background-color: #db3236; 
+    text-decoration: none !important;
+}
+
+.btn-google:hover,
+ .btn-google:active,
+  .btn-google:focus,
+   .btn-facebook:hover,
+    .btn-facebook:active,
+     .btn-facebook:focus {
     color: #ffffff !important;
 }
 

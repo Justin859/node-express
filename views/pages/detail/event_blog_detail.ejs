@@ -1,0 +1,73 @@
+<html>
+<head>
+<% include ../../partials/header.ejs %>
+<link rel="stylesheet" type="text/css" href="/plugins/lib/jquery.upvote.css" />
+</head>
+
+<body>
+<% include ../../partials/nav.ejs %>
+
+<% include ../../partials/login.ejs %>
+
+<div class="cover-photo" style="background: url('/assets/images/graffiti-369507_1920.jpg') center center; background-size: cover; background-repeat: no-repeat; background-color: #ffffff;">
+    <div class="cover-text">
+        <h3 class="display-4"><%= blog.blog_title %></h3>
+        <br />
+        <% if (userAuthenticated) { %>
+            <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalLong">
+                <i class="fa fa-sign-in" style="padding-right: 15px;"></i>Login
+            </a>
+        <% } else { %>
+            <a href="/logout" class="btn btn-primary" style="color:#ffffff;">
+                <i class="fa fa-sign-out" style="padding-right: 15px;"></i>Logout <%= user.displayName %>
+            </a>
+        <% }; %>
+    </div>
+</div>
+<br />
+<div class="container">
+    <div class="row">
+        <div class="col-12 col-md-4">
+            <p><img src="<%- blog.img_src %>" class="img-fluid"></p>
+        </div>
+        <div class="col-12 col-md-8">
+            <div class="card">
+                <div class="card-block">
+                    <p class="card-text"><%- marked(blog.content) %></p>
+                    <small class="pull-right">by - <%= blog.author_name %></small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-12">
+            <% if (userAuthenticated) { %>
+            <div class="upvote pull-left" id="login-tool-tip" data-toggle="tooltip" data-placement="right" title="Login to upvote">
+                <a class="upvote"></a>
+                <span class="count"><%= blog.upvotes %></span>
+            </div>
+            <% } else { %>
+            <div data-id="<%= blog.id %>" id="topic" class="upvote pull-left">
+                <% if (user_voted) { %>
+                <a class="upvote upvote-on"></a>
+                <% } else { %>
+                <a class="upvote"></a>
+                {% }; %}
+                <span class="count"><%= blog.upvotes %></span>
+            </div>
+            <% }; %>
+        </div>
+    </div>
+    <hr />
+</div>
+
+<script src="/plugins/js/jquery-2.0.2.min.js"></script>
+<script src="/bower_components/tether/dist/js/tether.min.js"></script>
+<script src="/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="/scripts/main.js"></script>
+<script src="/scripts/blog_detail.js"></script>
+<script src="/plugins/lib/jquery.upvote.js"></script>
+</body>
+
+</html>

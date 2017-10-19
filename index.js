@@ -388,6 +388,7 @@ app.get('/venue/:venue_id/page', function(request, response) {
         weekend_stop: weekend_stop,
         imgFix: features.imgFix,
         lengthFix: features.lengthFix,
+        user: request.user,
         userAuthenticated: !request.isAuthenticated()
       });
     }
@@ -480,6 +481,101 @@ app.get('/event-blogs', function(request, response) {
     });
     pg.end();
   });
+});
+
+app.get('/event-blogs/:blog_id/detail', function(request, response) {
+  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+    client.query('SELCET * FROM user_votes WHERE blog_id=$1 AND user_id=$2', [request.params.blog_id, request.user.id], function(err, result) {
+      if (err) {
+        console.log(err);
+      } else {
+        if(result.rows[0]) {
+          pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+            client.query('SELECT * FROM event_blogs WHERE id=$1', [request.params.blog_id], function(err, result) {
+              if (err) {
+                console.log(err);
+              } else {
+                response.render('pages/detail/event_blog_detail', {blog: result.rows[0], marked: marked, userAuthenticated: !request.isAuthenticated(), user: request.user, user_voted: true});
+              }
+            });
+          });
+        } else {
+          pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+            client.query('SELECT * FROM event_blogs WHERE id=$1', [request.params.blog_id], function(err, result) {
+              if (err) {
+                console.log(err);
+              } else {
+                response.render('pages/detail/event_blog_detail', {blog: result.rows[0], marked: marked, userAuthenticated: !request.isAuthenticated(), user: request.user, user_voted: false});
+              }
+            });
+          });
+        }
+      }
+    });
+  });
+});
+
+app.post('/event-blogs/vote', function(request, response) {
+
+  if (user.isAuthenticated()) {
+    
+    var upvoteData = {
+      id: request.body.id,
+      upvoted: request.body.up,
+      user_id: request.user.id
+    }
+  
+    if (upvoteData.upvoted == 'true') {
+      pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+        client.query('UPDATE event_blogs SET upvotes = upvotes + 1 WHERE id = $1', [upvoteData.id], function(err, result) {
+          if (err) {
+            console.log(err);
+          }
+          done();
+        });
+        pg.end()
+      });
+  
+      pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+        client.query('INSERT INTO user_votes(blog_id, user_id, upvoted) VALUES($1, $2, $3) RETURNING * ', [upvoteData.blog_id, upvoteData.user_id, true], function(err, result) {
+          if(err) {
+            console.log(err);
+          }
+          done()
+        })
+      });
+  
+    } else {
+      pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+        client.query('UPDATE event_blogs SET upvotes = upvotes - 1 WHERE id = $1', [upvoteData.id], function(err, result) {
+          if (err) {
+            console.log(err);
+          }
+          done();
+        });
+        pg.end()
+      });
+  
+      pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+        client.query('DELETE FROM user_votes WHERE blog_id = $1 AND user_id = $2', [upvoteData.blog_id, upvoteData.user_id], function(err, result) {
+          if(err) {
+            console.log(err);
+          }
+          done()
+        })
+      });
+  
+    }
+  
+    /*
+  
+    */
+    console.log(request.body);
+  
+  } else {
+    console.log('User not authenticated.')
+  }
+
 });
 
 app.get('/cool', function(request, response) {
