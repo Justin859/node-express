@@ -541,7 +541,7 @@ app.post('/event-blogs/vote', function(request, response) {
     var upvoteData = {
       id: request.body.id,
       upvoted: request.body.up,
-      user_id: request.user.id
+      user_id: request.user.id,
     }
   
     if (upvoteData.upvoted == 'true') {
@@ -556,7 +556,7 @@ app.post('/event-blogs/vote', function(request, response) {
       });
   
       pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-        client.query('INSERT INTO user_votes(blog_id, user_id, upvoted) VALUES($1, $2, $3) RETURNING * ', [upvoteData.blog_id, upvoteData.user_id, true], function(err, result) {
+        client.query('INSERT INTO user_votes(blog_id, user_id, upvoted) VALUES($1, $2, $3) RETURNING * ', [upvoteData.id, upvoteData.user_id, true], function(err, result) {
           if(err) {
             console.log(err);
           }
@@ -576,7 +576,7 @@ app.post('/event-blogs/vote', function(request, response) {
       });
   
       pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-        client.query('DELETE FROM user_votes WHERE blog_id = $1 AND user_id = $2', [upvoteData.blog_id, upvoteData.user_id], function(err, result) {
+        client.query('DELETE FROM user_votes WHERE blog_id = $1 AND user_id = $2', [upvoteData.id, upvoteData.user_id], function(err, result) {
           if(err) {
             console.log(err);
           }
@@ -603,7 +603,7 @@ app.get('/cool', function(request, response) {
 
 app.get('/db', function (request, response) {
   pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-    client.query('SELECT * FROM event_blogs', function(err, result) {
+    client.query('SELECT * FROM user_votes', function(err, result) {
       if (err)
        { console.error(err); response.send("Error " + err); }
       else
