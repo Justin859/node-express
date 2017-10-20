@@ -257,28 +257,6 @@ sub {
     top: 6px;
 }
 
-.heart-o {
-    color: #000000;
-}
-
-.heart {
-    color: #db3236;
-}
-
-.share {
-    color: #ffca28;
-}
-
- .share:focus,
-    .share:active {
-   color: #ffca28;
-}
-
-.share:hover {
-    color: #ffc107
-}
-
-
 .heart:hover,
  .heart-o:hover,
   .heart:focus,
