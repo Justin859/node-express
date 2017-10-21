@@ -21,7 +21,6 @@
 <% }; %>
 
 <% if (successMsg) { %>
-    
     <br />
     <div class="container">
         <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -56,7 +55,20 @@
                                 <textarea class="form-control" name="content" type="text" placeholder="Blog content" rows="20" required></textarea>
                             </div>
                             <div class="form-group">
-                                <input type="file" class="form-control-file" name="img_src" required/>
+                                <label><b>Main Image</b></label>
+                                <input type="file" id="img_src" class="form-control-file" name="img_src" required/>
+                            </div>
+                            <div class="form-group">
+                                <label><b>Second Image</b></label>
+                                <input type="file" id="img_src2" class="form-control-file" name="img_src_2" disabled/>
+                            </div>
+                            <div class="form-group">
+                                <label><b>Third Image</b></label>
+                                <input type="file" id="img_src3" class="form-control-file" name="img_src_3" disabled/>
+                            </div>
+                            <div class="form-group">
+                                <label><b>Fourth Image</b></label>
+                                <input type="file" id="img_src4" class="form-control-file" name="img_src_4"disabled/>
                             </div>
                             <div class="form-group">
                                 <button type="submit" class="btn btn-primary">Submit</button>
@@ -71,6 +83,7 @@
 <br />
 
 <% include ../../partials/scripts.ejs %>
+<script src="/scripts/upload_blog.js"></script>
 </body>
 
 </html>

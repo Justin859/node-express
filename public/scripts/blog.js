@@ -2,6 +2,7 @@ $(document).ready(function(){
     $('.grid').each(function() {
         if( !$.trim($(this).html()).length ) {
             $(this).parent().html('<div class="card" style="padding: 8px; margin: 50px;" align="center"><h1>No Event Blogs at the moment.</h1></div>')
+            $('.loading').addClass('invisible');
          } else {
             var $grid = $('.grid').masonry({
                 // options...

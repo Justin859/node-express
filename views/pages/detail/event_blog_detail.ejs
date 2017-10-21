@@ -44,25 +44,24 @@
     </div>
     <br />
     <div class="row">
-        <div class="col-1">
+        <div class="col-6 col-md-2 col-lg-1">
             <% if (userAuthenticated) { %>
-            <div class="upvote pull-left" id="login-tool-tip" data-trigger="click" data-toggle="tooltip" data-placement="right" title="Login to upvote">
-                <a class="upvote upvote"></a>
+            <div class="upvote" id="login-tool-tip" data-trigger="click" data-toggle="tooltip" data-placement="top" title="Login to upvote">
+                <a class="upvote upvote-enabled"></a>
                 <span class="count"><%= blog.upvotes %></span>
             </div>
             <% } else { %>
             <div data-id="<%= blog.id %>" id="topic" class="upvote pull-left">
                 <% if (user_voted) { %>
-                <a class="upvote upvote-on"></a>
+                <a class="upvote upvote-enabled upvote-on"></a>
                 <% } else { %>
-                <a class="upvote"></a>
+                <a class="upvote upvote-enabled"></a>
                 <% }; %>
                 <span class="count"><%= blog.upvotes %></span>
             </div>
             <% }; %>
         </div>
-        <div class="col-1 hidden-md-up"></div>
-        <div class="col">
+        <div class="col-6 col-md-4">
             <div id="share"></div>
         </div>
     </div>
