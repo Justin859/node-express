@@ -51,7 +51,7 @@
                 <span class="count"><%= blog.upvotes %></span>
             </div>
             <% } else { %>
-            <div data-id="<%= blog.id %>" id="topic" class="upvote pull-left">
+            <div data-id="<%= blog.id %>" id="topic" class="upvote">
                 <% if (user_voted) { %>
                 <a class="upvote upvote-enabled upvote-on"></a>
                 <% } else { %>
