@@ -32,9 +32,9 @@
                 <div class="card-body">
                     <h4 class="card-title">Welcome to Rock Worthy - <%= user.displayName  %></h4>
                     <ul>
-                    <% user.ForEach(function(item) { %>
-                        <%= item %>
-                    <% }); %>
+                    <% for(i=0; i < user.length; i++) { %>
+                        <%= user[i] %>
+                    <% }; %>
                     </ul>
                 </div>
             </div>
