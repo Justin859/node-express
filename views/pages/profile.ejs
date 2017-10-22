@@ -32,9 +32,11 @@
                 <div class="card-body">
                     <h4 class="card-title">Welcome to Rock Worthy - <%= user.displayName  %></h4>
                     <ul>
-                    <% for(i=0; i < user.length; i++) { %>
-                        <%= user[i] %>
-                    <% }; %>
+                        <li>
+                            <% for(i=0; i < user.length; i++) { %>
+                                <%= user[i] %>
+                            <% }; %>
+                        </li>
                     </ul>
                 </div>
             </div>
