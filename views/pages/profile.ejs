@@ -31,7 +31,11 @@
             <div class="card" style="padding: 15px;">
                 <div class="card-body">
                     <h4 class="card-title">Welcome to Rock Worthy - <%= user.displayName  %></h4>
-                    <p><%= user.photos %></p>
+                    <ul>
+                    <% user.ForEach(function(item) { %>
+                        <%= item %>
+                    <% }); %>
+                    </ul>
                 </div>
             </div>
         </div>
