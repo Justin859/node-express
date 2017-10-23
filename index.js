@@ -708,7 +708,6 @@ app.post('/admin/upload-blog', function(request, response) {
     }
 
     var getfilesEmitter = new EventEmitter();
-    var databasUpdate = new EventEmitter();
 
     getfilesEmitter.on('event', () => {
       uploadFiles(function() {
@@ -737,6 +736,7 @@ app.post('/admin/upload-blog', function(request, response) {
         }
       })
       uploadToDB(function() {
+        /*
         for (i=0; i<img_srcs.length; i++) {
           if (img_srcs[i] !== null) { 
             fs.unlink('public/blog_images/' + img_srcs[i], function(err) {
@@ -749,10 +749,9 @@ app.post('/admin/upload-blog', function(request, response) {
             img_srcs[i] = s3link + img_srcs[i];
           }
         }
+        */
       })
     })
-
-
 
     getfilesEmitter.emit('event');
 
