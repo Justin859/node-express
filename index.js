@@ -727,7 +727,6 @@ app.post('/admin/upload-blog', function(request, response) {
           console.log(result);
           if (err) {
             console.log(err);
-            response.render('pages/admin/upload_blog', {formErrors: false, successMsg: false});
           } else {
             console.log('Event Blog uploaded.')
             response.render('pages/admin/upload_blog', {formErrors: false, successMsg: true});
