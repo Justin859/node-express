@@ -659,50 +659,54 @@ app.post('/admin/upload-blog', function(request, response) {
     } else {
 
     function uploadFiles(callback) {
-
-      for (key in request.files) {
-        if (request.files.hasOwnProperty(key)) {
-          if (request.files[key].name) {
-            var uuid_image_name  =  uuidv1() + "-" + request.files[key].name;
-            request.files[key].mv('public/blog_images/' + uuid_image_name, function(error) {
-              if (error) {
-                response.status(500).send(error);
-              } 
-            });
-          } else {
-            var uuid_image_name  =  null;
+      (function getAllFiles() {
+        for (key in request.files) {
+          if (request.files.hasOwnProperty(key)) {
+            if (request.files[key].name) {
+              var uuid_image_name  =  uuidv1() + "-" + request.files[key].name;
+              request.files[key].mv('public/blog_images/' + uuid_image_name, function(error) {
+                if (error) {
+                  response.status(500).send(error);
+                } 
+              });
+            } else {
+              var uuid_image_name  =  null;
+            }
+            img_srcs.push(uuid_image_name);
           }
-          img_srcs.push(uuid_image_name);
         }
-      }
+      })()
       callback();
     }
 
     function uploadToDB(callback) {
-      pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-        client.query(
-          'INSERT INTO event_blogs(blog_title, author_name, description, content, img_src, img_src2, img_src3, img_src4) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
-           [blog_data.blog_title,
-            blog_data.author,
-            blog_data.description,
-            blog_data.content,
-            img_srcs[0],
-            img_srcs[1],
-            img_srcs[2],
-            img_srcs[3]], function(err, result) {
-            console.log(result);
-            if (err) {
-              console.log(err);
-              return response.send("Error " + err);
-            } else {
-              console.log('Event Blog uploaded.')
-              return response.render('pages/admin/upload_blog', {formErrors: false, successMsg: true});
-            }
-          done();
+      (function connectToDb() {
+        pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+          client.query(
+            'INSERT INTO event_blogs(blog_title, author_name, description, content, img_src, img_src2, img_src3, img_src4) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
+             [blog_data.blog_title,
+              blog_data.author,
+              blog_data.description,
+              blog_data.content,
+              img_srcs[0],
+              img_srcs[1],
+              img_srcs[2],
+              img_srcs[3]], function(err, result) {
+              console.log(result);
+              if (err) {
+                console.log(err);
+                return response.send("Error " + err);
+              } else {
+                console.log('Event Blog uploaded.')
+                return response.render('pages/admin/upload_blog', {formErrors: false, successMsg: true});
+              }
+            done();
+          });
+          pg.end();
         });
-        pg.end();
-        callback();
-      });
+      })();
+
+      callback();
     }
 
     }
@@ -711,6 +715,7 @@ app.post('/admin/upload-blog', function(request, response) {
 
     getfilesEmitter.on('event', () => {
       uploadFiles(function() {
+        
         for (i=0; i<img_srcs.length; i++) {
           if (img_srcs[i] !== null) {
             var params = {
@@ -736,10 +741,10 @@ app.post('/admin/upload-blog', function(request, response) {
         }
       })
       uploadToDB(function() {
-        /*
+        
         for (i=0; i<img_srcs.length; i++) {
           if (img_srcs[i] !== null) { 
-            fs.unlink('public/blog_images/' + img_srcs[i], function(err) {
+            fs.unlinkSync('public/blog_images/' + img_srcs[i], function(err) {
               if (err) {
                 console.log(err)
               } else {
@@ -749,7 +754,7 @@ app.post('/admin/upload-blog', function(request, response) {
             img_srcs[i] = s3link + img_srcs[i];
           }
         }
-        */
+        
       })
     })
 
