@@ -651,7 +651,7 @@ app.post('/admin/upload-blog', function(request, response) {
   var s3link = "https://s3.amazonaws.com/rockworthy/blog_images/";
   
   if (errors) {
-    response.render('pages/admin/upload_blog', {formErrors: errors, successMsg: false});
+    return response.render('pages/admin/upload_blog', {formErrors: errors, successMsg: false});
   } else {
     if (!request.files) {
       return response.status(400).send("No files were uploaded.");
@@ -727,9 +727,10 @@ app.post('/admin/upload-blog', function(request, response) {
           console.log(result);
           if (err) {
             console.log(err);
+            return response.render('pages/admin/upload_blog', {formErrors: false, successMsg: false});
           } else {
             console.log('Event Blog uploaded.')
-            response.render('pages/admin/upload_blog', {formErrors: false, successMsg: true});
+            return response.render('pages/admin/upload_blog', {formErrors: false, successMsg: true});
           }
         done();
       });
