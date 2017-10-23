@@ -19,6 +19,7 @@ var moment = require('moment');
 var marked = require('marked');
 var pg = require('pg');
 var features = require('./script_modules/features.js');
+var async = require('async');
 var express = require('express');
 var app = express();
 
@@ -658,107 +659,109 @@ app.post('/admin/upload-blog', function(request, response) {
       response.status(400).send("No files were uploaded.");
     } else {
 
-    function uploadFiles(callback) {
-      (function getAllFiles() {
-        for (key in request.files) {
-          if (request.files.hasOwnProperty(key)) {
-            if (request.files[key].name) {
-              var uuid_image_name  =  uuidv1() + "-" + request.files[key].name;
-              request.files[key].mv('public/blog_images/' + uuid_image_name, function(error) {
-                if (error) {
-                  response.status(500).send(error);
-                } 
-              });
-            } else {
-              var uuid_image_name  =  null;
+
+      async.series([
+        function(callback) {
+
+          (function getAllFiles() {
+            for (key in request.files) {
+              if (request.files.hasOwnProperty(key)) {
+                if (request.files[key].name) {
+                  var uuid_image_name  =  uuidv1() + "-" + request.files[key].name;
+                  request.files[key].mv('public/blog_images/' + uuid_image_name, function(error) {
+                    if (error) {
+                      response.status(500).send(error);
+                    } 
+                  });
+                } else {
+                  var uuid_image_name  =  null;
+                }
+                img_srcs.push(uuid_image_name);
+              }
             }
-            img_srcs.push(uuid_image_name);
+          })()
+
+          callback(null, 'one')
+        },
+        function(callback) {
+
+          for (i=0; i<img_srcs.length; i++) {
+            if (img_srcs[i] !== null) {
+              var params = {
+                localFile: "public/blog_images/" + img_srcs[i],
+               
+                s3Params: {
+                  Bucket: "rockworthy",
+                  Key: "blog_images/" + img_srcs[i],
+                },
+              };
+              var uploader = client.uploadFile(params);
+              uploader.on('error', function(err) {
+                console.error("unable to upload:", err.stack);
+              });
+              uploader.on('progress', function() {
+                console.log("progress", uploader.progressMd5Amount,
+                          uploader.progressAmount, uploader.progressTotal);
+              });
+              uploader.on('end', function() {
+                console.log("done uploading");
+              });
+            }
           }
+
+          callback(null, 'two')
+        },
+        function(callback) {
+
+          for (i=0; i<img_srcs.length; i++) {
+            if (img_srcs[i] !== null) { 
+              fs.unlinkSync('public/blog_images/' + img_srcs[i], function(err) {
+                if (err) {
+                  console.log(err)
+                } else {
+                  console.log('removed image from server.');
+                }
+              })
+              img_srcs[i] = s3link + img_srcs[i];
+            }
+          }
+
+          callback(null, 'three')
+        },
+        function(callback) {
+
+          (function connectToDb() {
+            pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+              client.query(
+                'INSERT INTO event_blogs(blog_title, author_name, description, content, img_src, img_src2, img_src3, img_src4) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
+                 [blog_data.blog_title,
+                  blog_data.author,
+                  blog_data.description,
+                  blog_data.content,
+                  img_srcs[0],
+                  img_srcs[1],
+                  img_srcs[2],
+                  img_srcs[3]], function(err, result) {
+                  console.log(result);
+                  if (err) {
+                    console.log(err);
+                    return response.send("Error " + err);
+                  } else {
+                    console.log('Event Blog uploaded.')
+                    return response.render('pages/admin/upload_blog', {formErrors: false, successMsg: true});
+                  }
+                done();
+              });
+              pg.end();
+            });
+          })();
+          
+          callback(null, 'four')
         }
-      })()
-      callback();
+      ])
+
     }
 
-    function uploadToDB(callback) {
-      (function connectToDb() {
-        pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-          client.query(
-            'INSERT INTO event_blogs(blog_title, author_name, description, content, img_src, img_src2, img_src3, img_src4) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
-             [blog_data.blog_title,
-              blog_data.author,
-              blog_data.description,
-              blog_data.content,
-              img_srcs[0],
-              img_srcs[1],
-              img_srcs[2],
-              img_srcs[3]], function(err, result) {
-              console.log(result);
-              if (err) {
-                console.log(err);
-                return response.send("Error " + err);
-              } else {
-                console.log('Event Blog uploaded.')
-                return response.render('pages/admin/upload_blog', {formErrors: false, successMsg: true});
-              }
-            done();
-          });
-          pg.end();
-        });
-      })();
-
-      callback();
-    }
-
-    }
-
-    var getfilesEmitter = new EventEmitter();
-
-    getfilesEmitter.on('event', () => {
-      uploadFiles(function() {
-        
-        for (i=0; i<img_srcs.length; i++) {
-          if (img_srcs[i] !== null) {
-            var params = {
-              localFile: "public/blog_images/" + img_srcs[i],
-             
-              s3Params: {
-                Bucket: "rockworthy",
-                Key: "blog_images/" + img_srcs[i],
-              },
-            };
-            var uploader = client.uploadFile(params);
-            uploader.on('error', function(err) {
-              console.error("unable to upload:", err.stack);
-            });
-            uploader.on('progress', function() {
-              console.log("progress", uploader.progressMd5Amount,
-                        uploader.progressAmount, uploader.progressTotal);
-            });
-            uploader.on('end', function() {
-              console.log("done uploading");
-            });
-          }
-        }
-      })
-      uploadToDB(function() {
-        
-        for (i=0; i<img_srcs.length; i++) {
-          if (img_srcs[i] !== null) { 
-            fs.unlinkSync('public/blog_images/' + img_srcs[i], function(err) {
-              if (err) {
-                console.log(err)
-              } else {
-                console.log('removed image from server.');
-              }
-            })
-            img_srcs[i] = s3link + img_srcs[i];
-          }
-        }
-        
-      })
-    })
-
-    getfilesEmitter.emit('event');
 
   }
 });
