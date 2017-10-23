@@ -3,6 +3,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var expressValidator = require('express-validator');
 var exphbs = require('express-handlebars');
+var EventEmitter = require('events').EventEmitter;
 var sendemail = require('sendemail');
 var graph = require('fbgraph');
 var session = require('express-session');
@@ -664,7 +665,7 @@ app.post('/admin/upload-blog', function(request, response) {
             var uuid_image_name  =  uuidv1() + "-" + request.files[key].name;
             request.files[key].mv('public/blog_images/' + uuid_image_name, function(error) {
               if (error) {
-                return error;
+                response.status(500).send(error);
               } 
             });
           } else {
@@ -744,23 +745,16 @@ app.post('/admin/upload-blog', function(request, response) {
     }
     }
 
-    try {
-      getFiles()
-    } catch (error) {
-      response.status(500).send(error)
-    } try {
-      uploadFiles()
-    } catch (error) {
-      response.status(500).send(error)
-    } try {
-      deleteFiles()
-    } catch (error) {
-      response.status(500).send(error)
-    } try {
-      uploadToDB()
-    } catch (error) {
-      response.status(500).send(error)
-    }
+    var getfilesEmitter = new EventEmitter();
+
+    getfilesEmitter.on('event', () => {
+      getFiles();
+      uploadFiles();
+      deleteFiles();
+      uploadToDB();
+    })
+
+    getfilesEmitter.emit('event');
 
   }
 });
