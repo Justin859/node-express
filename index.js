@@ -676,14 +676,45 @@ app.post('/admin/upload-blog', function(request, response) {
                 var uuid_image_name  =  null;
               }
               img_srcs.push(uuid_image_name);
+              callback(null)
             }
-            callback()
           })
 
-          callback()
+          callback(null, 'one')
         },
+
         function(callback) {
 
+            pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+              client.query(
+                'INSERT INTO event_blogs(blog_title, author_name, description, content, img_src, img_src2, img_src3, img_src4) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
+                 [blog_data.blog_title,
+                  blog_data.author,
+                  blog_data.description,
+                  blog_data.content,
+                  img_srcs[0],
+                  img_srcs[1],
+                  img_srcs[2],
+                  img_srcs[3]], function(err, result) {
+                  console.log(result);
+                  if (err) {
+                    console.log(err);
+                    return console.log("Error " + err);
+                  } else {
+                    console.log('Event Blog uploaded.')
+                    return response.render('pages/admin/upload_blog', {formErrors: false, successMsg: true});
+                  }
+                done();
+                
+              });
+              pg.end();
+              
+            });
+            callback(null, 'two')
+        }
+      ])
+      async.series({
+        one: function(callback) {
           async.eachSeries(img_srcs, function(img_src, callback) {
             if (img_srcs !== null) {
               var params = {
@@ -708,58 +739,31 @@ app.post('/admin/upload-blog', function(request, response) {
             }
             callback(null);
           })
-
-          callback()
+          callback(null, 1);
         },
-        function(callback) {
-
+        two: function(callback){
           async.eachSeries(img_srcs, function(img_src, callback) {
-            if (img_srcs !== null) { 
+            if (img_src !== null) { 
               fs.unlink('public/blog_images/' + img_src, function(err) {
-                if (err) {
+                if(err) {
                   console.log(err)
                 } else {
                   console.log('removed image from server.');
                 }
-              })
-              img_src = s3link + img_src;
+              }) 
+
             }
-            callback()
-          });
-
-          callback()
-        },
-        function(callback) {
-
-          (function connectToDb() {
-            pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-              client.query(
-                'INSERT INTO event_blogs(blog_title, author_name, description, content, img_src, img_src2, img_src3, img_src4) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
-                 [blog_data.blog_title,
-                  blog_data.author,
-                  blog_data.description,
-                  blog_data.content,
-                  img_srcs[0],
-                  img_srcs[1],
-                  img_srcs[2],
-                  img_srcs[3]], function(err, result) {
-                  console.log(result);
-                  if (err) {
-                    console.log(err);
-                    return console.log("Error " + err);
-                  } else {
-                    console.log('Event Blog uploaded.')
-                    return response.render('pages/admin/upload_blog', {formErrors: false, successMsg: true});
-                  }
-                done();
-              });
-              pg.end();
+              callback(null)
+              img_src = s3link + img_src;
+              
             });
-          })();
-          callback()
-        }
-      ])
 
+          callback(null, 2)
+        }
+    }, function(err, results) {
+        // results is now equal to: {one: 1, two: 2}
+        console.log(results)
+    });
     }
 
 
