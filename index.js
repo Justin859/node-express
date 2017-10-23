@@ -656,43 +656,42 @@ app.post('/admin/upload-blog', function(request, response) {
     response.render('pages/admin/upload_blog', {formErrors: errors, successMsg: false});
   } else {
     if (!request.files) {
-      response.status(400).send("No files were uploaded.");
+      console.log("No files were uploaded.");
     } else {
 
 
       async.series([
         function(callback) {
 
-          (function getAllFiles() {
-            for (key in request.files) {
-              if (request.files.hasOwnProperty(key)) {
-                if (request.files[key].name) {
-                  var uuid_image_name  =  uuidv1() + "-" + request.files[key].name;
-                  request.files[key].mv('public/blog_images/' + uuid_image_name, function(error) {
-                    if (error) {
-                      response.status(500).send(error);
-                    } 
-                  });
-                } else {
-                  var uuid_image_name  =  null;
-                }
-                img_srcs.push(uuid_image_name);
+          async.eachSeries(Object.keys(request.files), function(key, callback){
+            if (request.files.hasOwnProperty(key)) {
+              if (request.files[key].name) {
+                var uuid_image_name  =  uuidv1() + "-" + request.files[key].name;
+                request.files[key].mv('public/blog_images/' + uuid_image_name, function(error) {
+                  if (error) {
+                    console.log(error);
+                  } 
+                });
+              } else {
+                var uuid_image_name  =  null;
               }
+              img_srcs.push(uuid_image_name);
             }
-          })()
+            callback()
+          })
 
-          callback(null, 'one')
+          callback()
         },
         function(callback) {
 
-          for (i=0; i<img_srcs.length; i++) {
-            if (img_srcs[i] !== null) {
+          async.eachSeries(img_srcs, function(img_src, callback) {
+            if (img_srcs !== null) {
               var params = {
-                localFile: "public/blog_images/" + img_srcs[i],
+                localFile: "public/blog_images/" + img_src,
                
                 s3Params: {
                   Bucket: "rockworthy",
-                  Key: "blog_images/" + img_srcs[i],
+                  Key: "blog_images/" + img_src,
                 },
               };
               var uploader = client.uploadFile(params);
@@ -707,26 +706,28 @@ app.post('/admin/upload-blog', function(request, response) {
                 console.log("done uploading");
               });
             }
-          }
+            callback(null);
+          })
 
-          callback(null, 'two')
+          callback()
         },
         function(callback) {
 
-          for (i=0; i<img_srcs.length; i++) {
-            if (img_srcs[i] !== null) { 
-              fs.unlinkSync('public/blog_images/' + img_srcs[i], function(err) {
+          async.eachSeries(img_srcs, function(img_src, callback) {
+            if (img_srcs !== null) { 
+              fs.unlink('public/blog_images/' + img_src, function(err) {
                 if (err) {
                   console.log(err)
                 } else {
                   console.log('removed image from server.');
                 }
               })
-              img_srcs[i] = s3link + img_srcs[i];
+              img_src = s3link + img_src;
             }
-          }
+            callback()
+          });
 
-          callback(null, 'three')
+          callback()
         },
         function(callback) {
 
@@ -745,7 +746,7 @@ app.post('/admin/upload-blog', function(request, response) {
                   console.log(result);
                   if (err) {
                     console.log(err);
-                    return response.send("Error " + err);
+                    return console.log("Error " + err);
                   } else {
                     console.log('Event Blog uploaded.')
                     return response.render('pages/admin/upload_blog', {formErrors: false, successMsg: true});
@@ -755,8 +756,7 @@ app.post('/admin/upload-blog', function(request, response) {
               pg.end();
             });
           })();
-          
-          callback(null, 'four')
+          callback()
         }
       ])
 
