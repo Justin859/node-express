@@ -24,6 +24,7 @@
     "fbgraph": "1.4.1",
     "install": "0.10.1",
     "marked": "0.3.6",
+    "memorystore": "1.6.0",
     "moment": "2.18.1",
     "morgan": "1.9.0",
     "npm": "5.4.2",

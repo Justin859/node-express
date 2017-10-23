@@ -5,6 +5,8 @@ var expressValidator = require('express-validator');
 var exphbs = require('express-handlebars');
 var sendemail = require('sendemail');
 var graph = require('fbgraph');
+var session = require('express-session');
+var MemoryStore = require('memorystore')(session);
 var passport = require('passport'),
     FacebookStrategy = require('passport-facebook').Strategy,
     GoogleStrategy = require('passport-google-oauth20').Strategy;
@@ -28,7 +30,16 @@ app.use(express.static(__dirname + '/public'));
 app.use(require('morgan')('combined'));
 app.use(require('cookie-parser')());
 app.use(require('body-parser').urlencoded({ extended: true }));
-app.use(require('express-session')({ secret: 'keyboard cat', resave: true, saveUninitialized: true }));
+app.set('trust proxy', 1);
+app.use(require('express-session')({
+  store: new MemoryStore({
+    checkPeriod: 86400000
+  }),
+   secret: 'keyboard cat',
+   resave: true,
+   saveUninitialized: true,
+   cookie: { secure: true } 
+  }));
 
 // facebook graph
  graph.get("oauth/access_token?client_id=" + process.env.FACEBOOK_API_ID + "&client_secret=" + process.env.FACEBOOK_APP_SECRET  + "&grant_type=client_credentials", function(error, response) {
@@ -449,7 +460,6 @@ app.get('/about', function(request, response) {
 
 app.get('/profile', ensureLoggedIn(), function(req, res){
   res.render('pages/profile', { user: req.user, userAuthenticated: !req.isAuthenticated() });
-  console.log(req.user);
 });
 
 app.get('/auth/facebook', passport.authenticate('facebook'));
