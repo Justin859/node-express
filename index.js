@@ -152,6 +152,12 @@ function ensureLoggedIn() {
   }
 }
 
+function getCurrentpage() {
+  return function(req, res, next) {
+    return req.get('refresher');
+  }
+}
+
 // express handlebars
 app.engine('handlebars', exphbs({defaultLayout: 'main'}));
 app.set('view engine', 'handlebars');
@@ -469,16 +475,12 @@ app.get('/auth/facebook', passport.authenticate('facebook'));
 app.get('/auth/google',
 passport.authenticate('google', { scope: ['profile'] }));
 
-app.get('/auth/facebook/callback', function(req, res) {
-  passport.authenticate('facebook', { successRedirect: req.get('referer'),
-  failureRedirect: '/login' });
-});
-
-app.get('/auth/google/callback', function(req, res) {
-  passport.authenticate('google', { successRedirect: req.get('referer'),
-  failureRedirect: '/login' });
-});
-
+app.get('/auth/facebook/callback',
+passport.authenticate('facebook', { successRedirect: getCurrentpage(),
+                                    failureRedirect: '/login' }));
+app.get('/auth/google/callback',
+passport.authenticate('google', { successRedirect: getCurrentpage(),
+                                    failureRedirect: '/login' }));
 
 app.get('/logout', function(request, response) {
   request.logout();
