@@ -663,9 +663,9 @@ app.post('/admin/upload-blog', function(request, response) {
           if (request.files.hasOwnProperty(key)) {
             if (request.files[key].name) {
               var uuid_image_name  =  uuidv1() + "-" + request.files[key].name;
-              request.files[key].mv('/tmp/' + uuid_image_name, function(error) {
+              request.files[key].mv('tmp/' + uuid_image_name, function(error) {
                 if (error) {
-                  console.log(error);
+                  console.log("MV Error: " + error);
                 } 
               });
             } else {
@@ -678,7 +678,7 @@ app.post('/admin/upload-blog', function(request, response) {
         for (i=0; i<img_srcs.length; i++) {
           if (img_srcs[i] !== null) {
             var params = {
-              localFile: "/tmp/" + img_srcs[i],
+              localFile: "tmp/" + img_srcs[i],
             
               s3Params: {
                 Bucket: "rockworthy",
@@ -702,7 +702,7 @@ app.post('/admin/upload-blog', function(request, response) {
 
         for (i=0; i<img_srcs.length; i++) {
           if (img_srcs[i] !== null) { 
-            fs.unlink('./tmp/' + img_srcs[i], function(err) {
+            fs.unlink('tmp/' + img_srcs[i], function(err) {
               if (err) {
                 console.log(err)
               } else {
