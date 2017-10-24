@@ -718,7 +718,7 @@ app.post('/admin/upload-blog', function(request, response) {
           async.eachSeries(img_srcs, function(img_src, callback) {
             if (img_srcs !== null) {
               var params = {
-                localFile: "public/blog_images/" + img_src,
+                localFile: "tmp/" + img_src,
                
                 s3Params: {
                   Bucket: "rockworthy",
