@@ -547,6 +547,117 @@ app.get('/event-blogs/:blog_id/detail', function(request, response) {
 
 });
 
+app.get('/api/:blog_id/comments', function(request, response) {
+  var user_id = 7;
+  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+    client.query('SELECT id, created, fullname, content, upvote_count, user_has_upvoted, blog_id FROM comments WHERE blog_id = $1', [request.params.blog_id], function(err, result) {
+      if(err) {
+        console.log(err);
+      } else {
+        pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+          client.query('SELECT * FROM comment_votes WHERE user_id = $1', [user_id], function(error, results) {
+            if(error) {
+              console.log(error)
+            } else {
+              if (result.rows) {
+                result.rows.forEach(function(main_row) {
+                  results.rows.forEach(function(row) {
+                    if (row.comment_id == main_row.id) {
+                      main_row.user_has_upvoted = true;
+                    }
+                  })
+                })
+                response.send(result.rows);
+              } else {
+                response.send(result.rows);
+              }
+            }
+  
+          })
+        })
+        
+      }
+      done()
+    })
+    pg.end()
+  })
+});
+
+app.post('/api/comments/', function(request, response) {
+  var user_comment = request.body;
+  console.log(user_comment);
+  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+    client.query('INSERT INTO comments(created, creator, content, fullname, user_has_upvoted, blog_id) VALUES($1, $2, $3, $4, $5, $6) RETURNING * ',
+     [user_comment.created,
+      user_comment.creator,
+      user_comment.content,
+      user_comment.fullname,
+      false,
+      79],
+      function(err, result) {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log(result);
+        }
+        done();
+      })
+      pg.end();
+  });
+});
+
+app.post('/api/comments/:comment_id/upvotes/:upvote_id', function(request, response) {
+  var user = request.body;
+  var user_id = 7;
+  console.log(request.body);
+
+  if(user.user_has_upvoted == 'true') {
+    pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+      client.query('INSERT INTO comment_votes(user_id, comment_id, has_voted) VALUES($1, $2, $3) RETURNING * ', [user_id, user.id, true], function(err, result) {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log(result);
+        }
+        done();
+      });
+      pg.end()
+    });
+    pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+      client.query('UPDATE comments SET upvote_count = upvote_count + 1 WHERE id = $1', [user.id], function(error, result) {
+        if(error) {
+          console.log(error);
+        } else {
+          console.log(result);
+        }
+        done()
+      });
+      pg.end()
+    });
+  } else {
+    pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+      client.query('DELETE FROM comment_votes WHERE comment_id = $1 AND user_id = $2', [user.id, user_id], function(err, result) {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log(result);
+        }
+        done()
+      });
+      pg.end();
+  });
+  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+    client.query('UPDATE comments SET upvote_count = upvote_count - 1 WHERE id = $1', [user.id], function(error, result) {
+      if(error) {
+        console.log(error);
+      } else {
+        console.log(result);
+      }
+    });
+  });
+  }
+});
+
 app.post('/event-blogs/vote', function(request, response) {
 
   if (request.isAuthenticated()) {
@@ -598,10 +709,7 @@ app.post('/event-blogs/vote', function(request, response) {
       });
   
     }
-  
-    /*
-  
-    */
+
     console.log(request.body);
   
   } else {

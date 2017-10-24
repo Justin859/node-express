@@ -1,10 +1,10 @@
 <html>
 <head>
-<% include ../../partials/header.ejs %>
-<link rel="stylesheet" type="text/css" href="/plugins/lib/jquery.upvote.css" />
-<link rel="stylesheet" type="text/css" href="/bower_components/jssocials/dist/jssocials.css" />
-<link rel="stylesheet" type="text/css" href="/bower_components/jssocials/dist/jssocials-theme-minima.css" />
-
+    <% include ../../partials/header.ejs %>
+    <link rel="stylesheet" type="text/css" href="/plugins/lib/jquery.upvote.css" />
+    <link rel="stylesheet" type="text/css" href="/bower_components/jssocials/dist/jssocials.css" />
+    <link rel="stylesheet" type="text/css" href="/bower_components/jssocials/dist/jssocials-theme-minima.css" />
+    <link rel="stylesheet" type="text/css" href="/bower_components/jquery-comments/css/jquery-comments.css">
 </head>
 
 <body>
@@ -66,6 +66,12 @@
         </div>
     </div>
     <hr />
+    <div class="row">
+        <div class="col-12 col-md-6 offset-md-3">
+            <div id="comments-container"></div>
+        </div>
+    </div>
+
 </div>
 
 <script src="/plugins/js/jquery-2.0.2.min.js"></script>
@@ -73,8 +79,10 @@
 <script src="/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
 <script src="/plugins/lib/jquery.upvote.js"></script>
 <script src="/bower_components/jssocials/dist/jssocials.min.js"></script>
+<script type="text/javascript" src="/bower_components/jquery-comments/js/jquery-comments.js"></script>
 <script src="/scripts/main.js"></script>
 <script src="/scripts/blog_detail.js"></script>
+
 
 </body>
 
