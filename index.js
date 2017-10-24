@@ -478,7 +478,7 @@ passport.authenticate('google', { successRedirect: 'back',
 
 app.get('/logout', function(request, response) {
   request.logout();
-  response.redirect(request.get('back'));
+  response.redirect('back');
 })
 
 app.get('/event-blogs', function(request, response) {
