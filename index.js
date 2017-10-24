@@ -743,10 +743,10 @@ app.post('/admin/upload-blog', function(request, response) {
         },
         two: function(callback){
           console.log("files not deleted.");
-          /*
+          
           async.eachSeries(img_srcs, function(img_src, callback) {
             if (img_src !== null) { 
-              fs.unlink('public/blog_images/' + img_src, function(err) {
+              fs.unlink('/tmp/' + img_src, function(err) {
                 if(err) {
                   console.log(err)
                 } else {
@@ -759,7 +759,7 @@ app.post('/admin/upload-blog', function(request, response) {
               img_src = s3link + img_src;
               
             });
-          */
+          
 
           callback(null, 2)
         }
