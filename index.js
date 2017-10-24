@@ -667,7 +667,7 @@ app.post('/admin/upload-blog', function(request, response) {
             if (request.files.hasOwnProperty(key)) {
               if (request.files[key].name) {
                 var uuid_image_name  =  uuidv1() + "-" + request.files[key].name;
-                request.files[key].mv('public/blog_images/' + uuid_image_name, function(error) {
+                request.files[key].mv('tmp/blog_images/' + uuid_image_name, function(error) {
                   if (error) {
                     console.log(error);
                   } 
