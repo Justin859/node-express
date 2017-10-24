@@ -470,10 +470,10 @@ app.get('/auth/google',
 passport.authenticate('google', { scope: ['profile'] }));
 
 app.get('/auth/facebook/callback',
-passport.authenticate('facebook', { successRedirect: '/profile',
+passport.authenticate('facebook', { successRedirect: req.get('referer'),
                                     failureRedirect: '/login' }));
 app.get('/auth/google/callback',
-passport.authenticate('google', { successRedirect: '/profile',
+passport.authenticate('google', { successRedirect: req.get('referer'),
                                     failureRedirect: '/login' }));
 
 app.get('/logout', function(request, response) {
