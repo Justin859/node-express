@@ -641,7 +641,7 @@ app.post('/api/comments/', function(request, response) {
 
 app.post('/api/comments/upvotes/', function(request, response) {
   var user_vote = request.body;
-
+  console.log(request.body);
   if (request.isAuthenticated()) {
     var user_id = request.user.id;
     if(user_vote.user_has_upvoted == 'true') {
