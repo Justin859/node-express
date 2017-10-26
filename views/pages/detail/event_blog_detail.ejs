@@ -25,6 +25,7 @@
         <% } else { %>
             <a href="/logout" class="btn btn-primary" style="color:#ffffff;">
                 <i class="fa fa-sign-out" style="padding-right: 15px;"></i>Logout <%= user.displayName %>
+                <div id="userId"><%= user.id %></div>
             </a>
         <% }; %>
     </div>

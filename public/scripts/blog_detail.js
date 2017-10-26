@@ -19,7 +19,17 @@ $(document).ready(function() {
                        fullname: commentJSON.fullname,
                        blog_id: document.getElementById('blogId').innerHTML},
                 success: function(comment) {
-                    success(commentJSON)
+                    success({
+                        id: document.getElementById('userId').innerHTML,
+                        created: commentJSON.created,
+                        modified: commentJSON.modified,
+                        content: commentJSON.content,
+                        fullname: commentJSON.fullname,
+                        profile_picture_url: commentJSON.profile_picture_url,
+                        created_by_current_user: commentJSON.created_by_current_user,
+                        upvote_count: '0',
+                        user_has_upvoted: 'false'
+                    })
                 },
                 error: error
             });
