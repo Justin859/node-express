@@ -649,6 +649,8 @@ app.post('/api/comments/upvotes/', function(request, response) {
         client.query('INSERT INTO comment_votes(user_id, comment_id, has_voted) VALUES($1, $2, $3) RETURNING * ', [user_id, user_vote.id, true], function(err, result) {
           if (err) {
             console.log(err);
+          } else {
+            console.log(result);
           }
           done();
         });
@@ -658,6 +660,8 @@ app.post('/api/comments/upvotes/', function(request, response) {
         client.query('UPDATE comments SET upvote_count = upvote_count + 1 WHERE id = $1', [user_vote.id], function(error, result) {
           if(error) {
             console.log(error);
+          } else {
+            console.log(result);
           }
           done()
         });
@@ -668,6 +672,8 @@ app.post('/api/comments/upvotes/', function(request, response) {
         client.query('DELETE FROM comment_votes WHERE comment_id = $1 AND user_id = $2', [user_vote.id, user_id], function(err, result) {
           if (err) {
             console.log(err);
+          } else {
+            console.log(result);
           }
           done()
         });
@@ -677,6 +683,8 @@ app.post('/api/comments/upvotes/', function(request, response) {
       client.query('UPDATE comments SET upvote_count = upvote_count - 1 WHERE id = $1', [user_vote.id], function(error, result) {
         if(error) {
           console.log(error);
+        } else {
+          console.log(result);
         }
         done()
       });
