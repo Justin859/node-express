@@ -667,6 +667,7 @@ app.post('/api/comments/upvotes/', function(request, response) {
         });
         pg.end()
       });
+      response.end()
     } else {
       pg.connect(process.env.DATABASE_URL, function(err, client, done) {
         client.query('DELETE FROM comment_votes WHERE comment_id = $1 AND user_id = $2', [user_vote.id, user_id], function(err, result) {
@@ -690,9 +691,11 @@ app.post('/api/comments/upvotes/', function(request, response) {
       });
       pg.end()
     });
+    response.end()
     }
   } else {
     console.log('User not authenticated.');
+    response.end()
   }
 
 });
