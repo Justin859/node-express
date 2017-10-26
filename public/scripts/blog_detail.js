@@ -37,12 +37,10 @@ $(document).ready(function() {
             });
         },
         upvoteComment: function(commentJSON, success, error) {
-            var commentURL = '/api/comments/' + commentJSON.id;
-            var upvotesURL = commentURL + '/upvotes/';
-    
+                
             $.ajax({
                 type: 'post',
-                url: upvotesURL,
+                url: '/api/comments/upvotes',
                 data: commentJSON,
                 success: function(comment) {
                     success(comment)
