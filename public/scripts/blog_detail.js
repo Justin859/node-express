@@ -9,22 +9,27 @@ $(document).ready(function() {
     };
 
     $('#comments-container').comments({
-        postComment: function(commentJSON, sucess, error) {
+        postComment: function(commentJSON, success, error) {
             $.ajax({
                 type: 'post',
                 url: '/api/comments/',
-                data: commentJSON,
+                data: {created: commentJSON.created,
+                       creator: commentJSON.creator,
+                       content: commentJSON.content,
+                       fullname: commentJSON.fullname,
+                       blog_id: document.getElementById('blogId').innerHTML},
                 success: function(comment) {
-                    success(comment)
+                    success(commentJSON)
                 },
                 error: error
             });
         },
+        enableReplying: false,
         profilePictureURL: 'https://app.viima.com/static/media/user_profiles/user-icon.png',
         getComments: function(success, error) {
             $.ajax({
                 type: 'get',
-                url: '/api/79/comments/',
+                url: '/api/'+ document.getElementById('blogId').innerHTML +'/comments/',
                 success: function(commentsArray) {
                     success(commentsArray)
                 },
@@ -37,7 +42,7 @@ $(document).ready(function() {
     
             $.ajax({
                 type: 'post',
-                url: upvotesURL + 7,
+                url: upvotesURL,
                 data: commentJSON,
                 success: function(comment) {
                     success(comment)
@@ -47,11 +52,26 @@ $(document).ready(function() {
         }
     });
 
+    $('#unauthenticated-comments-container').comments({
+        readOnly: true,
+        getComments: function(success, error) {
+            $.ajax({
+                type: 'get',
+                url: '/api/'+ document.getElementById('blogId').innerHTML +'/comments/',
+                success: function(commentsArray) {
+                    success(commentsArray)
+                },
+                error: error
+            });
+        }
+    })
+
     $("#share").jsSocials({
         url: window.location.href,
         shares: ["twitter", "facebook", "googleplus"]
     });
 
     $('#topic').upvote({callback: callback});
-    $('#login-tool-tip').tooltip('enable');
+    $('#login-upvote-tool-tip').tooltip('show');
+    $('.login-comment-tool-tip').tooltip('show');
 });

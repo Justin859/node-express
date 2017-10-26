@@ -3,7 +3,7 @@ body {
 }
 
 nav {
-    z-index: 98;
+    z-index: 9999;
     position: fixed;
     height: 100%;
     width: 200px;
@@ -21,11 +21,11 @@ nav {
 .nav-button {
     position: fixed; /* Fixed/sticky position */
     margin: 0;
-    z-index: 99; /* Make sure it does not overlap */    
+    z-index: 99999; /* Make sure it does not overlap */
 }
 .nav-button span {
     position: absolute;
-    z-index: 90;
+    z-index: 99999;
     margin: 0;
 }
 .nav-button a {
@@ -183,7 +183,7 @@ sub {
     position:fixed;
     margin: 0;
     top:0;
-    z-index: 1
+    z-index: 999;
 }
 
 .cover-photo {

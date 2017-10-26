@@ -530,7 +530,9 @@ app.get('/event-blogs/:blog_id/detail', function(request, response) {
             });
           }
         }
+        done()
       });
+      pg.end()
     });
 
   } else {
@@ -541,121 +543,150 @@ app.get('/event-blogs/:blog_id/detail', function(request, response) {
         } else {
           response.render('pages/detail/event_blog_detail', {blog: result.rows[0], marked: marked, userAuthenticated: !request.isAuthenticated(), user: request.user, user_voted: false});
         }
+        done()
       });
+      pg.end()
     });
   }
 
 });
 
 app.get('/api/:blog_id/comments', function(request, response) {
-  var user_id = 7;
-  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-    client.query('SELECT id, created, fullname, content, upvote_count, user_has_upvoted, blog_id FROM comments WHERE blog_id = $1', [request.params.blog_id], function(err, result) {
-      if(err) {
-        console.log(err);
-      } else {
-        pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-          client.query('SELECT * FROM comment_votes WHERE user_id = $1', [user_id], function(error, results) {
-            if(error) {
-              console.log(error)
-            } else {
-              if (result.rows) {
-                result.rows.forEach(function(main_row) {
-                  results.rows.forEach(function(row) {
-                    if (row.comment_id == main_row.id) {
-                      main_row.user_has_upvoted = true;
-                    }
-                  })
-                })
-                response.send(result.rows);
+
+  if (request.isAuthenticated()) {
+    var user_id = request.user.id;
+    pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+      client.query('SELECT id, created, creator, fullname, content, upvote_count, user_has_upvoted, blog_id, created_by_current_user FROM comments WHERE blog_id = $1', [request.params.blog_id], function(err, result) {
+        if(err) {
+          console.log(err);
+        } else {
+          pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+            client.query('SELECT * FROM comment_votes WHERE user_id = $1', [user_id], function(error, results) {
+              if(error) {
+                console.log(error)
               } else {
-                response.send(result.rows);
+                if (result.rows) {
+                  result.rows.forEach(function(main_row) {
+                    results.rows.forEach(function(row) {
+                      if (row.comment_id == main_row.id) {
+                        main_row.user_has_upvoted = true;
+                      }
+                    })
+                  })
+                  response.send(result.rows);
+                } else {
+                  response.send(result.rows);
+                }
               }
-            }
-  
+              done()
+            })
+            pg.end()
           })
-        })
-        
-      }
-      done()
+          result.rows.forEach(function(main_row) {
+            if (main_row.creator == user_id) {
+              main_row.created_by_current_user = true;
+            }
+          })
+        }
+        done()
+      })
+      pg.end()
     })
-    pg.end()
-  })
+
+  } else {
+    pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+      client.query('SELECT id, created, fullname, content, upvote_count, blog_id FROM comments WHERE blog_id = $1', [request.params.blog_id], function(err, result) {
+        if(err) {
+          console.log(err);
+        } else {
+          response.send(result.rows);
+        }
+        done()
+      })
+      pg.end()
+    })
+  }
+
 });
 
 app.post('/api/comments/', function(request, response) {
   var user_comment = request.body;
-  console.log(user_comment);
-  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-    client.query('INSERT INTO comments(created, creator, content, fullname, user_has_upvoted, blog_id) VALUES($1, $2, $3, $4, $5, $6) RETURNING * ',
-     [user_comment.created,
-      user_comment.creator,
-      user_comment.content,
-      user_comment.fullname,
-      false,
-      79],
-      function(err, result) {
-        if (err) {
-          console.log(err);
-        } else {
-          console.log(result);
-        }
-        done();
-      })
-      pg.end();
-  });
-});
 
-app.post('/api/comments/:comment_id/upvotes/:upvote_id', function(request, response) {
-  var user = request.body;
-  var user_id = 7;
-  console.log(request.body);
+  if (request.isAuthenticated()) {
+    var user_id = request.user.id;
+    var user_name = request.user.displayName;
 
-  if(user.user_has_upvoted == 'true') {
     pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-      client.query('INSERT INTO comment_votes(user_id, comment_id, has_voted) VALUES($1, $2, $3) RETURNING * ', [user_id, user.id, true], function(err, result) {
-        if (err) {
-          console.log(err);
-        } else {
-          console.log(result);
-        }
-        done();
-      });
-      pg.end()
-    });
-    pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-      client.query('UPDATE comments SET upvote_count = upvote_count + 1 WHERE id = $1', [user.id], function(error, result) {
-        if(error) {
-          console.log(error);
-        } else {
-          console.log(result);
-        }
-        done()
-      });
-      pg.end()
+      client.query('INSERT INTO comments(creator, content, fullname, user_has_upvoted, blog_id) VALUES($1, $2, $3, $4) RETURNING * ',
+       [user_id,
+        user_comment.content,
+        user_name,
+        user_comment.blog_id],
+        function(err, result) {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log(result);
+            response.redirect('back');
+          }
+          done();
+        })
+        pg.end();
     });
   } else {
+    console.log("User not Authenticated.");
+  }
+  
+});
+
+app.post('/api/comments/upvotes/', function(request, response) {
+  var user_vote = request.body;
+
+  if (request.isAuthenticated()) {
+    var user_id = request.user.id;
+    if(user_vote.user_has_upvoted == 'true') {
+      pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+        client.query('INSERT INTO comment_votes(user_id, comment_id, has_voted) VALUES($1, $2, $3) RETURNING * ', [user_id, user_vote.id, true], function(err, result) {
+          if (err) {
+            console.log(err);
+          }
+          done();
+        });
+        pg.end()
+      });
+      pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+        client.query('UPDATE comments SET upvote_count = upvote_count + 1 WHERE id = $1', [user_vote.id], function(error, result) {
+          if(error) {
+            console.log(error);
+          }
+          done()
+        });
+        pg.end()
+      });
+    } else {
+      pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+        client.query('DELETE FROM comment_votes WHERE comment_id = $1 AND user_id = $2', [user_vote.id, user_id], function(err, result) {
+          if (err) {
+            console.log(err);
+          }
+          done()
+        });
+        pg.end();
+    });
     pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-      client.query('DELETE FROM comment_votes WHERE comment_id = $1 AND user_id = $2', [user.id, user_id], function(err, result) {
-        if (err) {
-          console.log(err);
-        } else {
-          console.log(result);
+      client.query('UPDATE comments SET upvote_count = upvote_count - 1 WHERE id = $1', [user_vote.id], function(error, result) {
+        if(error) {
+          console.log(error);
         }
         done()
       });
-      pg.end();
-  });
-  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-    client.query('UPDATE comments SET upvote_count = upvote_count - 1 WHERE id = $1', [user.id], function(error, result) {
-      if(error) {
-        console.log(error);
-      } else {
-        console.log(result);
-      }
+      pg.end()
     });
-  });
+    }
+  } else {
+    console.log('User not authenticated.');
   }
+
 });
 
 app.post('/event-blogs/vote', function(request, response) {
