@@ -20,15 +20,16 @@ $(document).ready(function() {
                        blog_id: document.getElementById('blogId').innerHTML},
                 success: function(comment) {
                     success({
-                        id: document.getElementById('userId').innerHTML,
+                        user_id: document.getElementById('userId').innerHTML,
                         created: commentJSON.created,
                         modified: commentJSON.modified,
+                        comment_id: document.getElementById('userId').innerHTML.comment_id,
                         content: commentJSON.content,
                         fullname: commentJSON.fullname,
                         profile_picture_url: commentJSON.profile_picture_url,
                         created_by_current_user: commentJSON.created_by_current_user,
                         upvote_count: '0',
-                        user_has_upvoted: 'false'
+                        user_has_upvoted: 'true'
                     })
                 },
                 error: error
