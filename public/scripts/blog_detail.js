@@ -19,7 +19,7 @@ $(document).ready(function() {
                        fullname: commentJSON.fullname,
                        blog_id: document.getElementById('blogId').innerHTML},
                 success: function(comment) {
-                    success(commentJSON)
+                    success(comment)
                 },
                 error: error
             });
