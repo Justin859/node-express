@@ -19,10 +19,13 @@ $(document).ready(function() {
                        fullname: commentJSON.fullname,
                        blog_id: document.getElementById('blogId').innerHTML},
                 success: function(comment) {
-                    success(comment)
+                    success(commentJSON)
                 },
                 error: error
             });
+        },
+        refresh: function() {
+            $('#comments-container').addClass('rendered');
         },
         enableReplying: false,
         profilePictureURL: 'https://app.viima.com/static/media/user_profiles/user-icon.png',
