@@ -617,8 +617,9 @@ app.post('/api/comments/', function(request, response) {
     var user_name = request.user.displayName;
 
     pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-      client.query('INSERT INTO comments(creator, content, fullname, blog_id) VALUES($1, $2, $3, $4) RETURNING * ',
+      client.query('INSERT INTO comments(creator, created, content, fullname, blog_id) VALUES($1, $2, $3, $4, $5) RETURNING * ',
        [user_id,
+        user_comment.created,
         user_comment.content,
         user_name,
         user_comment.blog_id],
