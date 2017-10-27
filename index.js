@@ -634,7 +634,7 @@ app.post('/api/comments/', function(request, response) {
         pg.end();
     });
   } else {
-    console.log("User not Authenticated.");
+    response.send('User Not Authenticated.')
   }
   
 });
@@ -729,7 +729,7 @@ app.post('/event-blogs/vote', function(request, response) {
           done()
         })
       });
-  
+      response.send('Upvoted Successfully')
     } else {
       pg.connect(process.env.DATABASE_URL, function(err, client, done) {
         client.query('UPDATE event_blogs SET upvotes = upvotes - 1 WHERE id = $1', [upvoteData.id], function(err, result) {
@@ -749,13 +749,13 @@ app.post('/event-blogs/vote', function(request, response) {
           done()
         })
       });
-  
+      response.send('Downvoted Successfully')
     }
 
     console.log(request.body);
   
   } else {
-    console.log('User not authenticated.')
+    response.send('User not authenticated.')
   }
 
 });

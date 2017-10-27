@@ -43,7 +43,7 @@ $(document).ready(function() {
                 url: '/api/comments/upvotes',
                 data: commentJSON,
                 success: function(comment) {
-                    success(comment)
+                    success(commentJSON)
                 },
                 error: error
             });
