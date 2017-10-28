@@ -645,54 +645,125 @@ app.post('/api/comments/upvotes/', function(request, response) {
   console.log(request.body);
   if (request.isAuthenticated()) {
     var user_id = request.user.id;
-    if(user_vote.user_has_upvoted == 'true') {
+    var pattern = /^[0-9]*$/;
+
+    if(pattern.test(!user_vote.id) && user_vote.user_has_upvoted == 'true') {
       pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-        client.query('INSERT INTO comment_votes(user_id, comment_id, has_voted) VALUES($1, $2, $3) RETURNING * ', [user_id, user_vote.id, true], function(err, result) {
+        client.query('SELECT * FROM comments WHERE created = $1', [user_vote.created], function(err, result) {
+          if (err) {
+            console.log(err)
+          } else {
+            pg.connect(process.env.DATABASE_URL, function(err, client, fone) {
+              client.query('INSERT INTO comment_votes(user_id, comment_id, has_voted) VALUES($1, $2, $3) RETURNING *', [result.rows[0].user_id, result.rows[0].comment_id, true], function(err, result) {
+                if (err) {
+                  console.log(err);
+                } else {
+                  console.log(result);
+                  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+                    client.query('UPDATE comments SET upvote_count = upvote_count + 1 WHERE id = $1', [result.rows[0].id], function(error, result) {
+                      if(error) {
+                        console.log(error);
+                      } else {
+                        console.log(result);
+                      }
+                      done()
+                    });
+                    pg.end()
+                  });
+                  response.send('Upvoted Successfully')
+                }
+                done()
+              })
+              pg.end()
+            })
+          }
+          done()
+        })
+        pg.end()
+      })
+    } else if(pattern.test(!user_vote.id) && user_vote.user_has_upvoted == 'false') {
+      pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+        client.query('SELECT * FROM comments WHERE created = $1', [user_vote.created], function(err, result) {
           if (err) {
             console.log(err);
           } else {
-            console.log(result);
+            pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+              client.query('DELETE FROM client_votes WHERE comment_id = $1 AND user_id = $2', [result.rows[0].id, user_id], function(err, result) {
+                if(err) {
+                  console.log(err);
+                } else {
+                  console.log(result);
+                  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+                    client.query('UPDATE comments SET upvote_count = upvote_count - 1 WHERE id = $1', [user_vote.id], function(error, result) {
+                      if(error) {
+                        console.log(error);
+                      } else {
+                        console.log(result);
+                      }
+                      done()
+                    });
+                    pg.end()
+                  });
+                  response.send('Downvoted Successfully')
+                }
+                done()
+              })
+              pg.end()
+            })
           }
-          done();
-        });
-        pg.end()
-      });
-      pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-        client.query('UPDATE comments SET upvote_count = upvote_count + 1 WHERE id = $1', [user_vote.id], function(error, result) {
-          if(error) {
-            console.log(error);
-          } else {
-            console.log(result);
-          }
-          done()
-        });
-        pg.end()
-      });
-      response.send('Upvoted Successfully')
+        })
+      })
     } else {
-      pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-        client.query('DELETE FROM comment_votes WHERE comment_id = $1 AND user_id = $2', [user_vote.id, user_id], function(err, result) {
-          if (err) {
-            console.log(err);
-          } else {
-            console.log(result);
-          }
-          done()
+      if(user_vote.user_has_upvoted == 'true') {
+        pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+          client.query('INSERT INTO comment_votes(user_id, comment_id, has_voted) VALUES($1, $2, $3) RETURNING * ', [user_id, user_vote.id, true], function(err, result) {
+            if (err) {
+              console.log(err);
+            } else {
+              console.log(result);
+              pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+                client.query('UPDATE comments SET upvote_count = upvote_count + 1 WHERE id = $1', [user_vote.id], function(error, result) {
+                  if(error) {
+                    console.log(error);
+                  } else {
+                    console.log(result);
+                  }
+                  done()
+                });
+                pg.end()
+              });
+              response.send('Upvoted Successfully')
+            }
+            done();
+          });
+          pg.end()
         });
-        pg.end();
-    });
-    pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-      client.query('UPDATE comments SET upvote_count = upvote_count - 1 WHERE id = $1', [user_vote.id], function(error, result) {
-        if(error) {
-          console.log(error);
-        } else {
-          console.log(result);
-        }
-        done()
+  
+      } else {
+        pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+          client.query('DELETE FROM comment_votes WHERE comment_id = $1 AND user_id = $2', [user_vote.id, user_id], function(err, result) {
+            if (err) {
+              console.log(err);
+            } else {
+              console.log(result);
+              pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+                client.query('UPDATE comments SET upvote_count = upvote_count - 1 WHERE id = $1', [user_vote.id], function(error, result) {
+                  if(error) {
+                    console.log(error);
+                  } else {
+                    console.log(result);
+                  }
+                  done()
+                });
+                pg.end()
+              });
+              response.send('Downvoted Successfully')
+            }
+            done()
+          });
+          pg.end();
       });
-      pg.end()
-    });
-    response.send('Downvoted Successfully')
+      }
     }
   } else {
     console.log('User not authenticated.');
