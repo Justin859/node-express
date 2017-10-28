@@ -687,8 +687,9 @@ app.post('/api/comments/upvotes/', function(request, response) {
           if (err) {
             console.log(err);
           } else {
+            console.log(main_result)
             pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-              client.query('DELETE FROM client_votes WHERE comment_id = $1 AND user_id = $2', [main_result.rows[0].id, user_id], function(err, results) {
+              client.query('DELETE FROM comment_votes WHERE comment_id = $1 AND user_id = $2', [main_result.rows[0].id, user_id], function(err, results) {
                 if(err) {
                   console.log(err);
                 } else {
