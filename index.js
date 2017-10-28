@@ -695,7 +695,7 @@ app.post('/api/comments/upvotes/', function(request, response) {
                 } else {
                   console.log(results);
                   pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-                    client.query('UPDATE comments SET upvote_count = upvote_count - 1 WHERE id = $1', [user_vote.id], function(error, result) {
+                    client.query('UPDATE comments SET upvote_count = upvote_count - 1 WHERE id = $1', [main_result.rows[0].id], function(error, result) {
                       if(error) {
                         console.log(error);
                       } else {
