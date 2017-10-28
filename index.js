@@ -661,7 +661,7 @@ if (request.isAuthenticated()) {
                 response.status(500).send('Server Error. Could not delete comment votes')
               } else {
                 console.log(result);
-                resonse.send('comment deleted successfully')
+                response.send('comment deleted successfully')
               }
               done()
             })
