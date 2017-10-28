@@ -642,7 +642,7 @@ app.post('/api/comments/', function(request, response) {
 
 app.post('/api/comments/delete', function(request, response) {
 console.log(request.body);
-user_comment = request.body();
+user_comment = request.body;
 
 if (request.isAuthenticated()) {
   var user_id = request.user.id;
