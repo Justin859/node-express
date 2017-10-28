@@ -647,31 +647,44 @@ user_comment = request.body;
 if (request.isAuthenticated()) {
   var user_id = request.user.id;
   if(user_comment.created_by_current_user == 'true') {
+
     pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-      client.query('DELETE FROM comments WHERE id = $1 AND creator = $2', [user_comment.id, user_id], function(err, results) {
+      client.query('SELECT * FROM comments WHERE created = $1 AND creator = $2', [user_comment.created, user_id], function(err, main_result) {
         if (err) {
-          console.log(err)
-          response.status(500).send('Server Error. Could not delete comment');
+          console.log(err);
+          response.status(500).send('Server Error. Could not delete comment')
         } else {
-          console.log(results);
           pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-            client.query('DELETE FROM comment_votes WHERE comment_id = $1', [user_comment.id], function(err, result) {
+            client.query('DELETE FROM comments WHERE id = $1', [main_result.rows[0].id], function(err, results) {
               if (err) {
                 console.log(err);
-                response.status(500).send('Server Error. Could not delete comment votes')
+                response.status(500).send('Server Error. Could not delete comment');
               } else {
-                console.log(result);
-                response.send('comment deleted successfully')
+                pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+                  console.log(results)
+                  client.query('DELETE FROM comment_votes WHERE comment_id = $1', [main_result.rows[0].id], function(err, result) {
+                    if (err) {
+                      console.log(err);
+                      response.status(500).send('Server Error. Could not delete comment')
+                    } else {
+                      console.log(result)
+                      response.send('Deleted comment successfully');
+                    }
+                    done();
+                  });
+                  pg.end()
+                });
               }
-              done()
+              done();
             })
-            pg.end()
-          });
+            pg.end();
+          })
         }
-        done()
+        done();
       });
-      pg.end()
-    });
+      pg.end();
+    })
+
   }
 }
 });
