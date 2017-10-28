@@ -55,7 +55,10 @@ $(document).ready(function() {
             $.ajax({
                 type: 'post',
                 url: '/api/comments/delete',
-                success: success,
+                data: commentJSON,
+                success: function(comment) {
+                    success(commentJSON)
+                },
                 error: error
             });
         }
