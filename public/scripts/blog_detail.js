@@ -50,6 +50,14 @@ $(document).ready(function() {
                 },
                 error: error
             });
+        },
+        deleteComment: function(commentJSON, success, error) {
+            $.ajax({
+                type: 'post',
+                url: '/api/comments/delete',
+                success: success,
+                error: error
+            });
         }
     });
 

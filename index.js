@@ -640,6 +640,10 @@ app.post('/api/comments/', function(request, response) {
   
 });
 
+app.post('/api/comments/delete', function(request, response) {
+console.log(request.body);
+});
+
 app.post('/api/comments/upvotes/', function(request, response) {
   var user_vote = request.body;
   console.log(request.body);
