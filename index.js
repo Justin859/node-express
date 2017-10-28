@@ -648,18 +648,18 @@ app.post('/api/comments/upvotes/', function(request, response) {
 
     if(user_vote.user_has_upvoted == 'true') {
       pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-        client.query('SELECT * FROM comments WHERE created = $1', [user_vote.created], function(err, result) {
+        client.query('SELECT * FROM comments WHERE created = $1', [user_vote.created], function(err, main_result) {
           if (err) {
             console.log(err)
           } else {
             pg.connect(process.env.DATABASE_URL, function(err, client, fone) {
-              client.query('INSERT INTO comment_votes(user_id, comment_id, has_voted) VALUES($1, $2, $3) RETURNING *', [result.rows[0].user_id, result.rows[0].comment_id, true], function(err, result) {
+              client.query('INSERT INTO comment_votes(user_id, comment_id, has_voted) VALUES($1, $2, $3) RETURNING *', [user_id, main_result.rows[0].comment_id, true], function(err, results) {
                 if (err) {
                   console.log(err);
                 } else {
                   console.log(result);
                   pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-                    client.query('UPDATE comments SET upvote_count = upvote_count + 1 WHERE id = $1', [result.rows[0].id], function(error, result) {
+                    client.query('UPDATE comments SET upvote_count = upvote_count + 1 WHERE id = $1', [main_result.rows[0].id], function(error, result) {
                       if(error) {
                         console.log(error);
                       } else {
@@ -682,12 +682,12 @@ app.post('/api/comments/upvotes/', function(request, response) {
       })
     } else {
       pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-        client.query('SELECT * FROM comments WHERE created = $1', [user_vote.created], function(err, result) {
+        client.query('SELECT * FROM comments WHERE created = $1', [user_vote.created], function(err, main_result) {
           if (err) {
             console.log(err);
           } else {
             pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-              client.query('DELETE FROM client_votes WHERE comment_id = $1 AND user_id = $2', [result.rows[0].id, user_id], function(err, result) {
+              client.query('DELETE FROM client_votes WHERE comment_id = $1 AND user_id = $2', [main_result.rows[0].id, user_id], function(err, results) {
                 if(err) {
                   console.log(err);
                 } else {
