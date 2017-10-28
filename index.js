@@ -663,14 +663,16 @@ app.post('/api/comments/upvotes/', function(request, response) {
                     client.query('UPDATE comments SET upvote_count = upvote_count + 1 WHERE id = $1', [main_result.rows[0].id], function(error, result) {
                       if(error) {
                         console.log(error);
+                        response.status(500).send('Downvoted Unsuccessfully: server ERROR')
                       } else {
                         console.log(result);
+                        response.send('Upvoted Successfully')
                       }
                       done()
                     });
                     pg.end()
                   });
-                  response.send('Upvoted Successfully')
+                  
                 }
                 done()
               })
@@ -698,14 +700,16 @@ app.post('/api/comments/upvotes/', function(request, response) {
                     client.query('UPDATE comments SET upvote_count = upvote_count - 1 WHERE id = $1', [main_result.rows[0].id], function(error, result) {
                       if(error) {
                         console.log(error);
+                        response.status(500).send('Downvoted Unsuccessfully: server ERROR')
                       } else {
                         console.log(result);
+                        response.send('Downvoted Successfully')
                       }
                       done()
                     });
                     pg.end()
                   });
-                  response.send('Downvoted Successfully')
+                  
                 }
                 done()
               })
