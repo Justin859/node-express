@@ -642,6 +642,38 @@ app.post('/api/comments/', function(request, response) {
 
 app.post('/api/comments/delete', function(request, response) {
 console.log(request.body);
+user_comment = request.body();
+
+if (request.isAuthenticated()) {
+  var user_id = request.user.id;
+  if(user_comment.created_by_current_user == 'true') {
+    pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+      client.query('DELETE FROM comments WHERE id = $1 AND creator = $2', [user_comment.id, user_id], function(err, results) {
+        if (err) {
+          console.log(err)
+          response.status(500).send('Server Error. Could not delete comment');
+        } else {
+          console.log(results);
+          pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+            client.query('DELETE FROM comment_votes WHERE comment_id = $1', [user_comment.id], function(err, result) {
+              if (err) {
+                console.log(err);
+                response.status(500).send('Server Error. Could not delete comment votes')
+              } else {
+                console.log(result);
+                resonse.send('comment deleted successfully')
+              }
+              done()
+            })
+            pg.end()
+          });
+        }
+        done()
+      });
+      pg.end()
+    });
+  }
+}
 });
 
 app.post('/api/comments/upvotes/', function(request, response) {

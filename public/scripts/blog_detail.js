@@ -56,9 +56,7 @@ $(document).ready(function() {
                 type: 'post',
                 url: '/api/comments/delete',
                 data: commentJSON,
-                success: function(comment) {
-                    success(commentJSON)
-                },
+                success: success,
                 error: error
             });
         }
