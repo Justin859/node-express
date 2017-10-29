@@ -62,7 +62,7 @@ $(document).ready(function() {
         },
         putComment: function(commentJSON, success, error) {
             $.ajax({
-                type: 'put',
+                type: 'post',
                 url: '/api/comments/edit/',
                 data: commentJSON,
                 success: function(comment) {
