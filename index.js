@@ -698,13 +698,25 @@ app.post('/api/comments/edit/', function(request, response) {
 
     if (user_edit.created_by_current_user == 'true') {
       pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-        client.query('UPDATE comments SET content = $1, modified = $2 WHERE creator = $3', [user_edit.content, user_edit.modified, user_id], function(err, results) {
+        client.query('SELECT * FROM comments WHERE created = $1', [user_edit.created], function(err, main_result) {
           if (err) {
             console.log(err)
-            response.status(500).send('There is a server error')
+            response.status(500).send('There is a server error.')
           } else {
-            console.log(results)
-            response.send('Comment has been modified.')
+            console.log(main_result)
+            pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+              client.query('UPDATE comments SET content = $1, modified = $2 WHERE creator = $3 AND id = $4', [user_edit.content, user_edit.modified, user_id, main_result.rows[0].id], function(err, results) {
+                if (err) {
+                  console.log(err)
+                  response.status(500).send('There is a server error')
+                } else {
+                  console.log(results)
+                  response.send('Comment has been modified.')
+                }
+                done()
+              });
+              pg.end()
+            });
           }
           done()
         });
