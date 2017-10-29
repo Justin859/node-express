@@ -27,7 +27,6 @@ $(document).ready(function() {
         refresh: function() {
             $('#comments-container').addClass('rendered');
         },
-        enableReplying: false,
         profilePictureURL: 'https://app.viima.com/static/media/user_profiles/user-icon.png',
         getComments: function(success, error) {
             $.ajax({
