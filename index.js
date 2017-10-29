@@ -705,7 +705,7 @@ app.post('/api/comments/edit/', function(request, response) {
           } else {
             console.log(main_result)
             pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-              client.query('UPDATE comments SET content = $1 AND modified = $2 WHERE creator = $3', [user_edit.content, user_edit.modified, user_id], function(err, results) {
+              client.query('UPDATE comments SET content = $1, modified = $2 WHERE creator = $3', [user_edit.content, user_edit.modified, user_id], function(err, results) {
                 if (err) {
                   console.log(err)
                   response.status(500).send('There is a server error')
