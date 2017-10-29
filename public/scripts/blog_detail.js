@@ -66,7 +66,7 @@ $(document).ready(function() {
                 url: '/api/comments/edit/',
                 data: commentJSON,
                 success: function(comment) {
-                    success(comment)
+                    success(commentJSON)
                 },
                 error: error
             });
