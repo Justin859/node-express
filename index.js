@@ -611,32 +611,12 @@ app.get('/api/:blog_id/comments', function(request, response) {
 
 app.post('/api/comments/', function(request, response) {
   var user_comment = request.body;
-
+  console.log(request.body);
   if (request.isAuthenticated()) {
     var user_id = request.user.id;
     var user_name = request.user.displayName;
-    if(user_comment.parent != '') {
       pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-        client.query('INSERT INTO comments(creator, created, content, fullname, blog_id) VALUES($1, $2, $3, $4, $5) RETURNING * ',
-         [user_id,
-          user_comment.created,
-          user_comment.content,
-          user_name,
-          user_comment.blog_id],
-          function(err, result) {
-            if (err) {
-              console.log(err);
-            } else {
-              console.log(result);
-              response.redirect('back');
-            }
-            done();
-          })
-          pg.end();
-      });
-    } else {
-      pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-        client.query('INSERT INTO comments(parent, creator, created, content, fullname, blog_id) VALUES($1, $2, $3, $4, $5, $6) RETURNING * ',
+        client.query('INSERT INTO comments(parent, creator, created, content, fullname, blog_id) VALUES($1, $2, $3, $4, $5) RETURNING * ',
          [user_comment.parent,
           user_id,
           user_comment.created,
@@ -654,7 +634,6 @@ app.post('/api/comments/', function(request, response) {
           })
           pg.end();
       });
-    }
 
   } else {
     response.send('User Not Authenticated.')
