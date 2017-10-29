@@ -59,6 +59,17 @@ $(document).ready(function() {
                 success: success,
                 error: error
             });
+        },
+        putComment: function(commentJSON, success, error) {
+            $.ajax({
+                type: 'put',
+                url: '/api/comments/edit/',
+                data: commentJSON,
+                success: function(comment) {
+                    success(comment)
+                },
+                error: error
+            });
         }
     });
 

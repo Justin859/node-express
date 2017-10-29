@@ -689,6 +689,15 @@ if (request.isAuthenticated()) {
 }
 });
 
+app.post('/api/comments/edit/', function(request, response) {
+  var user_edit = request.body;
+  console.log(request.body);
+
+  if (request.isAuthenticated()) {
+    var user_id = request.user.id;
+  }
+});
+
 app.post('/api/comments/upvotes/', function(request, response) {
   var user_vote = request.body;
   console.log(request.body);
