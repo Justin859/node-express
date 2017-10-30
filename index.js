@@ -571,6 +571,7 @@ app.get('/api/:blog_id/comments', function(request, response) {
                       if (row.comment_id == main_row.id) {
                         main_row.user_has_upvoted = true;
                       }
+                      main_row.parent = parseInt(main_row.parent);
                     })
                   })
                   response.send(result.rows);
