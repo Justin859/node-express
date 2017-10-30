@@ -567,12 +567,14 @@ app.get('/api/:blog_id/comments', function(request, response) {
               } else {
                 if (result.rows) {
                   result.rows.forEach(function(main_row) {
+                    main_row.parent = parseInt(main_row.parent);
                     results.rows.forEach(function(row) {
                       if (row.comment_id == main_row.id) {
                         main_row.user_has_upvoted = true;
                       }
-                      main_row.parent = parseInt(main_row.parent);
+                      
                     })
+                    
                   })
                   response.send(result.rows);
                 } else {
@@ -600,7 +602,15 @@ app.get('/api/:blog_id/comments', function(request, response) {
         if(err) {
           console.log(err);
         } else {
-          response.send(result.rows);
+          
+          if (result.rows) {
+            result.rows.forEach(function(row) {
+              row.parent = parseInt(row.parent);
+            });
+            response.send(result.rows);
+          } else {
+            response.send(result.rows);
+          }
         }
         done()
       })
