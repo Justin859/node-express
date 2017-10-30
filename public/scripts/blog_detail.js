@@ -20,7 +20,22 @@ $(document).ready(function() {
                        fullname: commentJSON.fullname,
                        blog_id: document.getElementById('blogId').innerHTML},
                 success: function(comment) {
-                    success(commentJSON)
+                    
+                    $.get('/api/' + document.getElementById('blogId').innerHTML + '/comments/', function(data) {
+                        $.each(data, function(i, item) {
+                            if (data[i].created == commentJSON.created) {
+                                newData = {
+                                    id : data[i].id,
+                                    created: commentJSON.created,
+                                    creator: commentJSON.creator,
+                                    content: commentJSON.content,
+                                    fullname: commentJSON.fullname,
+                                    blog_id: document.getElementById('blogId').innerHTML
+                                }
+                                success(newData)
+                            }
+                        });
+                    });
                 },
                 error: error
             });
