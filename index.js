@@ -676,7 +676,7 @@ if (request.isAuthenticated()) {
               } else {
                 pg.connect(process.env.DATABASE_URL, function(err, client, done) {
                   console.log(results)
-                  client.query('DELETE FROM comment_votes WHERE comment_id = $1 OR parent = $2', [results.rows[0].id, parseInt(results.rows[0].id)], function(err, result) {
+                  client.query('DELETE FROM comment_votes WHERE comment_id = $1 OR parent = $2', [main_result.rows[0].id, parseInt(main_result.rows[0].id)], function(err, result) {
                     if (err) {
                       console.log(err);
                       response.status(500).send('Server Error. Could not delete comment')
