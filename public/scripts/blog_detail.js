@@ -13,7 +13,7 @@ $(document).ready(function() {
             $.ajax({
                 type: 'post',
                 url: '/api/comments/',
-                data: {parent: commentJSON.parent,
+                data: {parent: null,
                        created: commentJSON.created,
                        creator: commentJSON.creator,
                        content: commentJSON.content,
