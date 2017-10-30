@@ -676,7 +676,7 @@ if (request.isAuthenticated()) {
               } else {
                 pg.connect(process.env.DATABASE_URL, function(err, client, done) {
                   console.log(results)
-                  client.query('DELETE FROM comment_votes WHERE comment_id = $1', [main_result.rows[0].id], function(err, result) {
+                  client.query('DELETE FROM comment_votes WHERE comment_id = $1 OR parent = $2', [results.rows[0].id, parseInt(results.rows[0].id)], function(err, result) {
                     if (err) {
                       console.log(err);
                       response.status(500).send('Server Error. Could not delete comment')
@@ -754,7 +754,7 @@ app.post('/api/comments/upvotes/', function(request, response) {
           } else {
             console.log(main_result)
             pg.connect(process.env.DATABASE_URL, function(err, client, fone) {
-              client.query('INSERT INTO comment_votes(user_id, comment_id, has_voted) VALUES($1, $2, $3) RETURNING *', [user_id, main_result.rows[0].id, true], function(err, results) {
+              client.query('INSERT INTO comment_votes(user_id, comment_id, has_voted, parent) VALUES($1, $2, $3, $4) RETURNING *', [user_id, main_result.rows[0].id, true, main_result.parent], function(err, results) {
                 if (err) {
                   console.log(err);
                 } else {
@@ -763,7 +763,7 @@ app.post('/api/comments/upvotes/', function(request, response) {
                     client.query('UPDATE comments SET upvote_count = upvote_count + 1 WHERE id = $1', [main_result.rows[0].id], function(error, result) {
                       if(error) {
                         console.log(error);
-                        response.status(500).send('Downvoted Unsuccessfully: server ERROR')
+                        response.status(500).send('Upvoted Unsuccessfully: server ERROR')
                       } else {
                         console.log(result);
                         response.send('Upvoted Successfully')
