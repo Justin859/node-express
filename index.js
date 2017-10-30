@@ -663,7 +663,7 @@ if (request.isAuthenticated()) {
   if(user_comment.created_by_current_user == 'true') {
 
     pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-      client.query('SELECT * FROM comments WHERE created = $1 AND creator = $2 OR parent = $2', [user_comment.created, user_id], function(err, main_result) {
+      client.query('SELECT * FROM comments WHERE created = $1 OR parent = $2', [user_comment.created, user_vote.id], function(err, main_result) {
         if (err) {
           console.log(err);
           response.status(500).send('Server Error. Could not delete comment')
