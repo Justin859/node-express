@@ -754,7 +754,7 @@ app.post('/api/comments/upvotes/', function(request, response) {
           } else {
             console.log(main_result)
             pg.connect(process.env.DATABASE_URL, function(err, client, fone) {
-              client.query('INSERT INTO comment_votes(user_id, comment_id, has_voted, parent) VALUES($1, $2, $3, $4) RETURNING *', [user_id, main_result.rows[0].id, true, main_result.parent], function(err, results) {
+              client.query('INSERT INTO comment_votes(user_id, comment_id, has_voted, parent) VALUES($1, $2, $3, $4) RETURNING *', [user_id, main_result.rows[0].id, true, user_vote.parent], function(err, results) {
                 if (err) {
                   console.log(err);
                 } else {
