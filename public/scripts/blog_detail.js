@@ -26,10 +26,12 @@ $(document).ready(function() {
                             if (data[i].created == commentJSON.created) {
                                 newData = {
                                     id : data[i].id,
+                                    parent: commentJSON.parent,
                                     created: commentJSON.created,
                                     creator: commentJSON.creator,
                                     content: commentJSON.content,
                                     fullname: commentJSON.fullname,
+                                    upvote_count: 0,
                                     blog_id: document.getElementById('blogId').innerHTML
                                 }
                                 success(newData)
