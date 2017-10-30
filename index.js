@@ -556,7 +556,7 @@ app.get('/api/:blog_id/comments', function(request, response) {
   if (request.isAuthenticated()) {
     var user_id = request.user.id;
     pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-      client.query('SELECT id, parent, created, creator, fullname, content, upvote_count, user_has_upvoted, blog_id, created_by_current_user FROM comments WHERE blog_id = $1', [request.params.blog_id], function(err, result) {
+      client.query('SELECT id, parent, modified , created, creator, fullname, content, upvote_count, user_has_upvoted, blog_id, created_by_current_user FROM comments WHERE blog_id = $1', [request.params.blog_id], function(err, result) {
         if(err) {
           console.log(err);
         } else {
@@ -598,13 +598,14 @@ app.get('/api/:blog_id/comments', function(request, response) {
 
   } else {
     pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-      client.query('SELECT id, parent, created, fullname, content, upvote_count, blog_id FROM comments WHERE blog_id = $1', [request.params.blog_id], function(err, result) {
+      client.query('SELECT id, parent, modified, created, fullname, content, upvote_count, blog_id FROM comments WHERE blog_id = $1', [request.params.blog_id], function(err, result) {
         if(err) {
           console.log(err);
         } else {
           
           if (result.rows) {
             result.rows.forEach(function(row) {
+              row.modified = parseInt(row.modified);
               row.parent = parseInt(row.parent);
             });
             response.send(result.rows);
