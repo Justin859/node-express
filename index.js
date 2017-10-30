@@ -568,6 +568,7 @@ app.get('/api/:blog_id/comments', function(request, response) {
                 if (result.rows) {
                   result.rows.forEach(function(main_row) {
                     main_row.parent = parseInt(main_row.parent);
+                    main_row.modified = parseInt(main_row.modified);
                     results.rows.forEach(function(row) {
                       if (row.comment_id == main_row.id) {
                         main_row.user_has_upvoted = true;
