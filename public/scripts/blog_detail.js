@@ -69,6 +69,7 @@ $(document).ready(function() {
                 error: error
             });
         },
+        enableDeletingCommentWithReplies: true,
         deleteComment: function(commentJSON, success, error) {
             $.ajax({
                 type: 'post',
