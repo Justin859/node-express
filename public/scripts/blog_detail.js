@@ -31,6 +31,7 @@ $(document).ready(function() {
                                     creator: commentJSON.creator,
                                     content: commentJSON.content,
                                     fullname: commentJSON.fullname,
+                                    created_by_current_user: commentJSON.created_by_current_user,
                                     upvote_count: 0,
                                     blog_id: document.getElementById('blogId').innerHTML
                                 }
