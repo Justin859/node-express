@@ -460,10 +460,6 @@ app.get('/about', function(request, response) {
   response.render('pages/about', {userAuthenticated: !request.isAuthenticated(), user: request.user});
 });
 
-app.get('/profile', ensureLoggedIn(), function(req, res){
-  res.render('pages/profile', { user: req.user, userAuthenticated: !req.isAuthenticated() });
-});
-
 app.get('/auth/facebook', passport.authenticate('facebook'));
 
 app.get('/auth/google',
