@@ -70,7 +70,7 @@ var client = s3.createClient({
 passport.use(new FacebookStrategy({
   clientID: process.env.FACEBOOK_API_ID,
   clientSecret: process.env.FACEBOOK_APP_SECRET,
-  callbackURL: "https://obscure-brushlands-94270.herokuapp.com/auth/facebook/callback"
+  callbackURL: "https://www.rockworthy.co.za/auth/facebook/callback"
 },
 
 function(accessToken, refreshToken, profile, cb) {
@@ -100,7 +100,7 @@ function(accessToken, refreshToken, profile, cb) {
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: "https://obscure-brushlands-94270.herokuapp.com/auth/google/callback"
+  callbackURL: "https://www.rockworthy.co.za/auth/google/callback"
 },
 
 function(accessToken, refreshToken, profile, cb) {
