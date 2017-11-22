@@ -27,6 +27,17 @@ app.set('port', (process.env.PORT || 5000));
 
 app.use(express.static(__dirname + '/public'));
 
+// redirect to https
+
+if (process.env.Node_ENV == "production") {
+  app.get('*',function(req,res,next){
+    if(req.headers['x-forwarded-proto']!='https')
+      res.redirect('https://www.rockworthy.co.za'+req.url)
+    else
+      next() /* Continue to other routes if we're not redirecting */
+  })
+}
+
 // Use application-level middleware for common functionality, including
 // logging, parsing, and session handling.
 app.use(require('morgan')('combined'));
