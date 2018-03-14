@@ -111,8 +111,7 @@ function(accessToken, refreshToken, profile, cb) {
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: "https://www.rockworthy.co.za/auth/google/callback",
-  passReqToCallback: true
+  callbackURL: "https://www.rockworthy.co.za/auth/google/callback"
 },
 
 function(accessToken, refreshToken, profile, cb) {
@@ -475,13 +474,13 @@ app.get('/about', function(request, response) {
 app.get('/auth/facebook', passport.authenticate('facebook'));
 
 app.get('/auth/google',
-passport.authenticate('google', { scope: ['profile', 'https://www.googleapis.com/auth/plus.login'] }));
+passport.authenticate('google', { scope: ['profile'] }));
 
 app.get('/auth/facebook/callback',
 passport.authenticate('facebook', { successRedirect: 'back',
                                     failureRedirect: '/login' }));
 app.get('/auth/google/callback',
-passport.authenticate('google', { successRedirect: '/',
+passport.authenticate('google', { successRedirect: 'back',
                                     failureRedirect: '/login' }));
 
 app.get('/logout', function(request, response) {
