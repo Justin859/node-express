@@ -472,10 +472,14 @@ app.get('/about', function(request, response) {
   response.render('pages/about', {userAuthenticated: !request.isAuthenticated(), user: request.user});
 });
 
+app.get('/login', function(req, res){
+  res.render('login', { user: req.user });
+});
+
 app.get('/auth/facebook', passport.authenticate('facebook'));
 
 app.get('/auth/google',
-passport.authenticate('google', { scope: ['https://www.googleapis.com/auth/plus.login', 'https://www.googleapis.com/auth/plus.profile.emails.read'],  }));
+passport.authenticate('google', { scope: ['profile'],  }));
 
 app.get('/auth/facebook/callback',
 passport.authenticate('facebook', { successRedirect: 'back',
