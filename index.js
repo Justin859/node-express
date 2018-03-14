@@ -112,7 +112,6 @@ passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
   callbackURL: "https://www.rockworthy.co.za/auth/google/callback",
-  passReqToCallback : true
 },
 
 function(accessToken, refreshToken, profile, cb) {
